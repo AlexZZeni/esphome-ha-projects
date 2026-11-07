@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="690" viewBox="0 0 1040 690" role="img" aria-label="O ESP32 liga ao receptor IR nos pinos D27, GND e 3V3; ao sensor SHT31 nos pinos D21, D22, GND e 3V3; e ao emissor IR pelo pino D4, com resistor de 1 quilo-ohm na base do transistor, e pelo pino VIN, com resistor de 47 ohms em série com o LED até o coletor. O emissor do transistor vai ao GND.">
+<style>
+svg { color: #1b2327; background: #fbfcfc; }
+svg text { font: 12px "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: currentColor; }
+svg .mono { font: 12px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; }
+svg .b { font-weight: 600; }
+svg .title { font-size: 14px; font-weight: 600; }
+svg .small { font-size: 11px; fill: #55636a; }
+svg .mid { text-anchor: middle; }
+svg .end { text-anchor: end; }
+svg .box { fill: #edf1f0; stroke: #b8c4c6; stroke-width: 1.5; }
+svg .part { fill: #fbfcfc; stroke: currentColor; stroke-width: 1.8; }
+svg .sym { fill: none; stroke: currentColor; stroke-width: 2; }
+svg .solid { fill: currentColor; }
+svg .w { fill: none; stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+svg .w5v { stroke: #cf2f2f; } svg .t5v { fill: #cf2f2f; }
+svg .w33 { stroke: #c26a00; } svg .t33 { fill: #c26a00; }
+svg .wgnd { stroke: #20282c; } svg .tgnd { fill: #20282c; }
+svg .wsda { stroke: #1769c2; } svg .tsda { fill: #1769c2; }
+svg .wscl { stroke: #11825a; } svg .tscl { fill: #11825a; }
+svg .wsig { stroke: #7b3fc4; } svg .tsig { fill: #7b3fc4; }
+svg .wled { stroke: #72828a; }
+svg .wt { font-weight: 600; }
+svg .pcb { fill: #123f3a; }
+svg .chip { fill: #24302f; stroke: #9dbdb4; }
+svg .usb { fill: #9dbdb4; stroke: #123f3a; }
+svg .on-pcb { fill: #e9f4f0; }
+svg .pin { font: 12px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; fill: #9dbdb4; }
+svg .pin.on { fill: #e9f4f0; font-weight: 600; }
+svg .pad { fill: #e5bf58; stroke: #123f3a; stroke-width: 1; }
+svg .hole { fill: #123f3a; stroke: #9dbdb4; stroke-width: 1; }
+svg .pad-part { fill: #e5bf58; stroke: #1b2327; stroke-width: 1; }
+svg .hole-part { fill: #fbfcfc; stroke: #55636a; stroke-width: 1; }
+</style>
+<rect width="1040" height="690" fill="#fbfcfc"/>
+<defs>
+  <marker id="ray" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="3.2" markerHeight="3.2" orient="auto">
+    <path d="M0 0L8 4L0 8z" class="tsig"></path>
+  </marker>
+</defs>
+
+<!-- Legenda -->
+<text x="30" y="48" class="title">Como ler</text>
+<path class="w w5v" d="M30 72H70"></path><text x="82" y="76">5 V (VIN)</text>
+<path class="w w33" d="M30 97H70"></path><text x="82" y="101">3V3</text>
+<path class="w wgnd" d="M30 122H70"></path><text x="82" y="126">GND</text>
+<path class="w wsda" d="M30 147H70"></path><text x="82" y="151">SDA do sensor</text>
+<path class="w wscl" d="M30 172H70"></path><text x="82" y="176">SCL do sensor</text>
+<path class="w wsig" d="M30 197H70"></path><text x="82" y="201">Sinal IR</text>
+<path class="w wled" d="M30 222H70"></path><text x="82" y="226">LED até o coletor</text>
+<path class="w wgnd" d="M30 247H70"></path><circle cx="50" cy="247" r="5" class="solid"></circle><text x="82" y="251">Ponto: fios ligados</text>
+<path class="w wgnd" d="M30 272H42a8 8 0 0 1 16 0H70"></path><path class="w wgnd" d="M50 260V284" opacity=".55"></path><text x="82" y="276">Arco: cruzam sem encostar</text>
+
+<!-- Placa -->
+<rect x="400" y="30" width="220" height="540" rx="8" class="pcb"></rect>
+<rect x="480" y="562" width="60" height="30" rx="3" class="usb"></rect>
+<text x="510" y="582" class="mid mono b" style="fill:#123f3a">USB</text>
+<text x="510" y="552" class="mid on-pcb">carregador de 5 V</text>
+<rect x="465" y="50" width="90" height="100" rx="3" class="chip"></rect>
+<text x="510" y="96" class="mid on-pcb b">ESP32</text>
+<text x="510" y="113" class="mid on-pcb">WROOM-32</text>
+<text x="510" y="296" class="mid on-pcb b">DOIT DevKit</text>
+<text x="510" y="313" class="mid on-pcb">30 pinos</text>
+
+<text x="412" y="94" class="pin">EN</text>
+<text x="412" y="124" class="pin">VP</text>
+<text x="412" y="154" class="pin">VN</text>
+<text x="412" y="184" class="pin">D34</text>
+<text x="412" y="214" class="pin">D35</text>
+<text x="412" y="244" class="pin">D32</text>
+<text x="412" y="274" class="pin">D33</text>
+<text x="412" y="304" class="pin">D25</text>
+<text x="412" y="334" class="pin">D26</text>
+<text x="412" y="364" class="pin on">D27</text>
+<text x="412" y="394" class="pin">D14</text>
+<text x="412" y="424" class="pin">D12</text>
+<text x="412" y="454" class="pin">D13</text>
+<text x="412" y="484" class="pin on">GND</text>
+<text x="412" y="514" class="pin on">VIN</text>
+
+<text x="608" y="94" class="pin end">D23</text>
+<text x="608" y="124" class="pin on end">D22</text>
+<text x="608" y="154" class="pin end">TX0</text>
+<text x="608" y="184" class="pin end">RX0</text>
+<text x="608" y="214" class="pin on end">D21</text>
+<text x="608" y="244" class="pin end">D19</text>
+<text x="608" y="274" class="pin end">D18</text>
+<text x="608" y="304" class="pin end">D5</text>
+<text x="608" y="334" class="pin end">TX2</text>
+<text x="608" y="364" class="pin end">RX2</text>
+<text x="608" y="394" class="pin on end">D4</text>
+<text x="608" y="424" class="pin end">D2</text>
+<text x="608" y="454" class="pin end">D15</text>
+<text x="608" y="484" class="pin on end">GND</text>
+<text x="608" y="514" class="pin on end">3V3</text>
+
+<!-- Receptor IR -->
+<rect x="50" y="335" width="160" height="110" rx="4" class="box"></rect>
+<text x="62" y="378" class="title">Receptor IR</text>
+<text x="62" y="396" class="small">VS1838 / TL1838</text>
+<text x="200" y="364" class="mono b end">OUT</text>
+<text x="200" y="394" class="mono b end">GND</text>
+<text x="200" y="424" class="mono b end">VCC</text>
+
+<!-- Sensor -->
+<rect x="720" y="250" width="230" height="80" rx="4" class="box"></rect>
+<text x="745" y="272" class="mono mid" style="fill:#55636a">ALT</text>
+<text x="780" y="272" class="mono mid" style="fill:#55636a">ADR</text>
+<text x="815" y="272" class="mono b mid">SDA</text>
+<text x="850" y="272" class="mono b mid">SCL</text>
+<text x="885" y="272" class="mono b mid">GND</text>
+<text x="920" y="272" class="mono b mid">VIN</text>
+<text x="732" y="298" class="title">Sensor SHT31</text>
+<text x="732" y="316" class="small">GY-SHT31-D: ALT e ADR ficam sem ligar</text>
+
+<!-- Fios do receptor -->
+<path class="w wsig" d="M210 360H400"></path>
+<path class="w wgnd" d="M210 390H350V480H400"></path>
+<text x="305" y="352" class="mid wt tsig">sinal do controle</text>
+<text x="255" y="384" class="mid wt tgnd">GND</text>
+<text x="255" y="414" class="mid wt t33">3V3</text>
+<text x="375" y="473" class="mid wt tgnd">GND</text>
+
+<!-- Fios de 3V3 -->
+<path class="w w33" d="M210 420H300V650H985V235H920V250"></path>
+<path class="w w33" d="M620 510H645V650"></path>
+<circle cx="645" cy="650" r="5" class="t33"></circle>
+<text x="480" y="670" class="mid wt t33">3V3</text>
+<text x="955" y="230" class="mid wt t33">3V3</text>
+
+<!-- Fio de 5 V -->
+<path class="w w5v" d="M400 510H360V620H637a8 8 0 0 1 16 0H930V555"></path>
+<path class="w w5v" d="M930 490V440"></path>
+<text x="380" y="503" class="mid wt t5v">5 V</text>
+<text x="480" y="613" class="mid wt t5v">5 V</text>
+
+<!-- Fios de GND -->
+<path class="w wgnd" d="M620 480H665V590H922a8 8 0 0 1 16 0H977a8 8 0 0 1 16 0H1010V215H885V250"></path>
+<path class="w wgnd" d="M798 412V590"></path>
+<circle cx="798" cy="590" r="5" class="tgnd"></circle>
+<text x="642" y="473" class="mid wt tgnd">GND</text>
+<text x="730" y="583" class="mid wt tgnd">GND</text>
+<text x="955" y="208" class="mid wt tgnd">GND</text>
+
+<!-- Fios I2C -->
+<path class="w wscl" d="M620 120H850V250"></path>
+<path class="w wsda" d="M620 210H815V250"></path>
+<text x="710" y="112" class="mid wt tscl">SCL</text>
+<text x="710" y="202" class="mid wt tsda">SDA</text>
+
+<!-- Emissor IR -->
+<path class="w wsig" d="M620 390H670"></path>
+<text x="645" y="382" class="mid wt tsig">sinal</text>
+<rect x="670" y="378" width="65" height="24" rx="2" class="part"></rect>
+<text x="702" y="370" class="mid b">1 kΩ</text>
+<path class="w wsig" d="M735 390H775"></path>
+
+<circle cx="785" cy="390" r="26" class="sym"></circle>
+<path class="sym" stroke-width="3" d="M775 375V405"></path>
+<path class="sym" d="M775 381L798 368"></path>
+<path class="sym" d="M775 399L798 412"></path>
+<polygon class="solid" points="798,412 787.3,410.6 791.3,403.6"></polygon>
+<text x="750" y="383" class="mono b mid">B</text>
+<text x="804" y="363" class="mono b">C</text>
+<text x="804" y="431" class="mono b">E</text>
+<text x="792" y="433" class="b end">2N2222A</text>
+
+<path class="w wled" d="M930 410V350H798V368"></path>
+<polygon class="solid" points="930,410 915,440 945,440"></polygon>
+<path class="sym" d="M915 410H945"></path>
+<path class="w wsig" stroke-width="2" d="M950 418L972 406" marker-end="url(#ray)"></path>
+<path class="w wsig" stroke-width="2" d="M950 434L972 422" marker-end="url(#ray)"></path>
+<text x="905" y="405" class="small end">perna curta (−)</text>
+<text x="905" y="426" class="b end">LED IR</text>
+<text x="905" y="446" class="small end">perna longa (+)</text>
+<text x="905" y="464" class="small end">aponte para o ar</text>
+<rect x="918" y="490" width="24" height="65" rx="2" class="part"></rect>
+<text x="908" y="527" class="b end">47 Ω</text>
+
+<!-- Pinos -->
+<circle cx="400" cy="90" r="3.5" class="hole"></circle><circle cx="400" cy="120" r="3.5" class="hole"></circle><circle cx="400" cy="150" r="3.5" class="hole"></circle><circle cx="400" cy="180" r="3.5" class="hole"></circle><circle cx="400" cy="210" r="3.5" class="hole"></circle><circle cx="400" cy="240" r="3.5" class="hole"></circle><circle cx="400" cy="270" r="3.5" class="hole"></circle><circle cx="400" cy="300" r="3.5" class="hole"></circle><circle cx="400" cy="330" r="3.5" class="hole"></circle><circle cx="400" cy="390" r="3.5" class="hole"></circle><circle cx="400" cy="420" r="3.5" class="hole"></circle><circle cx="400" cy="450" r="3.5" class="hole"></circle>
+<circle cx="620" cy="90" r="3.5" class="hole"></circle><circle cx="620" cy="150" r="3.5" class="hole"></circle><circle cx="620" cy="180" r="3.5" class="hole"></circle><circle cx="620" cy="240" r="3.5" class="hole"></circle><circle cx="620" cy="270" r="3.5" class="hole"></circle><circle cx="620" cy="300" r="3.5" class="hole"></circle><circle cx="620" cy="330" r="3.5" class="hole"></circle><circle cx="620" cy="360" r="3.5" class="hole"></circle><circle cx="620" cy="420" r="3.5" class="hole"></circle><circle cx="620" cy="450" r="3.5" class="hole"></circle>
+<circle cx="400" cy="360" r="5" class="pad"></circle><circle cx="400" cy="480" r="5" class="pad"></circle><circle cx="400" cy="510" r="5" class="pad"></circle>
+<circle cx="620" cy="120" r="5" class="pad"></circle><circle cx="620" cy="210" r="5" class="pad"></circle><circle cx="620" cy="390" r="5" class="pad"></circle><circle cx="620" cy="480" r="5" class="pad"></circle><circle cx="620" cy="510" r="5" class="pad"></circle>
+<circle cx="210" cy="360" r="5" class="pad-part"></circle><circle cx="210" cy="390" r="5" class="pad-part"></circle><circle cx="210" cy="420" r="5" class="pad-part"></circle>
+<circle cx="745" cy="250" r="3.5" class="hole-part"></circle><circle cx="780" cy="250" r="3.5" class="hole-part"></circle>
+<circle cx="815" cy="250" r="5" class="pad-part"></circle><circle cx="850" cy="250" r="5" class="pad-part"></circle><circle cx="885" cy="250" r="5" class="pad-part"></circle><circle cx="920" cy="250" r="5" class="pad-part"></circle>
+      </svg>

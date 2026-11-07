@@ -15,6 +15,8 @@ do cômodo.
 
 ## Ligações
 
+![Esquema de ligação do ESP32 com o emissor IR, o receptor IR e o sensor SHT31](docs/ligacoes.svg)
+
 ```
 Emissor
   GPIO4 ── 1 kΩ ── base do 2N2222
