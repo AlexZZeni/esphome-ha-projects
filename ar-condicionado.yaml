@@ -41,8 +41,24 @@ remote_receiver:
   # Mostra no log os códigos do controle. Remova depois de identificar o protocolo.
   dump: all
 
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+
+sensor:
+  - platform: sht3xd
+    # Algumas plaquinhas usam 0x45.
+    address: 0x44
+    temperature:
+      name: Temperatura
+      id: temperatura_ambiente
+    humidity:
+      name: Humidade
+    update_interval: 60s
+
 climate:
   - platform: ${ac_platform}
     name: None
     transmitter_id: ir_tx
     receiver_id: ir_rx
+    sensor: temperatura_ambiente

@@ -1,7 +1,8 @@
 # Ar-condicionado por infravermelho para Home Assistant
 
 Controla um ar-condicionado sem conectividade usando um ESP32 com ESPHome. O ar aparece no Home Assistant como
-uma entidade `climate`, com modo, temperatura e ventilação.
+uma entidade `climate`, com modo, temperatura e ventilação. Um sensor ligado ao ESP32 mede a temperatura e a humidade
+do cômodo.
 
 ## Peças
 
@@ -10,6 +11,7 @@ uma entidade `climate`, com modo, temperatura e ventilação.
 - Transistor NPN 2N2222
 - Resistores de 1 kΩ e 47 Ω
 - Receptor IR de 38 kHz (TSOP38238 ou VS1838B)
+- Sensor de temperatura e humidade SHT31 em plaquinha (veja as [alternativas](#sensor-de-temperatura-e-humidade))
 
 ## Ligações
 
@@ -24,9 +26,93 @@ Receptor
   VCC ── 3V3 (não use 5 V: a saída vai direto no GPIO)
   GND ── GND
   OUT ── GPIO27
+
+Sensor SHT31
+  VCC ── 3V3
+  GND ── GND
+  SDA ── GPIO21
+  SCL ── GPIO22
 ```
 
 Confira a pinagem do transistor e do receptor no datasheet do seu componente, porque ela muda entre modelos.
+
+## Sensor de temperatura e humidade
+
+O YAML já vem configurado para o SHT31. Para usar outro sensor, troque o bloco `sensor` pelo exemplo correspondente.
+
+| Sensor | Precisão | Plataforma no ESPHome | Observação |
+|---|---|---|---|
+| SHT31 | Boa | `sht3xd` | Melhor opção no geral |
+| SHT40 | Boa | `sht4x` | Mais novo, mesma ligação do SHT31 |
+| AHT20 | Razoável | `aht10` | Mais barato |
+| BME280 | Boa em temperatura | `bme280_i2c` | Também mede pressão. O BMP280 é parecido, mas não mede humidade |
+| DHT22 | Razoável | `dht` | Aceita fio mais longo, mas é mais lento e menos confiável com o tempo |
+
+Os sensores I²C usam as mesmas ligações do SHT31. A maioria das plaquinhas já tem resistores de pull-up. Se o sensor
+vier sem placa, adicione resistores de 4,7 kΩ do SDA e do SCL para 3V3.
+
+SHT40:
+
+```yaml
+sensor:
+  - platform: sht4x
+    temperature:
+      name: Temperatura
+      id: temperatura_ambiente
+    humidity:
+      name: Humidade
+    update_interval: 60s
+```
+
+AHT20:
+
+```yaml
+sensor:
+  - platform: aht10
+    variant: AHT20
+    temperature:
+      name: Temperatura
+      id: temperatura_ambiente
+    humidity:
+      name: Humidade
+    update_interval: 60s
+```
+
+BME280 (algumas plaquinhas usam o endereço `0x77`):
+
+```yaml
+sensor:
+  - platform: bme280_i2c
+    address: 0x76
+    temperature:
+      name: Temperatura
+      id: temperatura_ambiente
+    humidity:
+      name: Humidade
+    update_interval: 60s
+```
+
+O DHT22 não usa I²C. Remova o bloco `i2c` do YAML e ligue VCC em 3V3, GND em GND e o pino de dados no GPIO25. Se o
+sensor vier sem placa, adicione um resistor de 4,7 kΩ entre o pino de dados e 3V3.
+
+```yaml
+sensor:
+  - platform: dht
+    pin: GPIO25
+    model: DHT22
+    temperature:
+      name: Temperatura
+      id: temperatura_ambiente
+    humidity:
+      name: Humidade
+    update_interval: 60s
+```
+
+A posição do sensor afeta a leitura:
+
+- Mantenha o sensor a alguns centímetros do ESP32, porque o calor da placa pode aumentar a temperatura medida.
+- Deixe o sensor fora do vento da saída de ar, ou ele vai medir o ar frio em vez da temperatura do cômodo.
+- Use até cerca de 50 cm de fio nos sensores I²C. Se precisar de mais distância, use o DHT22.
 
 ## Primeira gravação
 
@@ -106,17 +192,13 @@ entity: climate.ar_condicionado
 
 ### Mostrar a temperatura ambiente
 
-O ESP32 pode usar a temperatura de um sensor que já exista no Home Assistant. Ela aparece como temperatura atual na
-entidade `climate`. Em `ar-condicionado.yaml`, adicione `sensor` ao bloco `climate` e crie o bloco `sensor`:
+A temperatura do sensor ligado ao ESP32 aparece como temperatura atual na entidade `climate`. A temperatura e a
+humidade também aparecem como entidades próprias do dispositivo.
+
+Para usar um sensor que já exista no Home Assistant, sem ligar nenhum ao ESP32, remova o bloco `i2c` de
+`ar-condicionado.yaml` e troque o bloco `sensor` por este:
 
 ```yaml
-climate:
-  - platform: ${ac_platform}
-    name: None
-    transmitter_id: ir_tx
-    receiver_id: ir_rx
-    sensor: temperatura_ambiente
-
 sensor:
   - platform: homeassistant
     id: temperatura_ambiente
@@ -186,5 +268,8 @@ mode: single
 - **O ar não responde:** olhe o LED pela câmera do celular enquanto envia um comando. Ele deve piscar (algumas
   câmeras filtram IR; se não enxergar, teste com outra). Se piscar, aproxime e aponte melhor para o receptor do ar.
 - **Nada aparece no log:** confira a alimentação e a pinagem do receptor.
+- **O sensor I²C não dá leitura:** procure no log o resultado da busca do I²C (`Found device at address`). Se aparecer
+  outro endereço, ajuste `address` no bloco `sensor`. Se aparecer `Found no devices`, confira a alimentação e os fios
+  SDA e SCL.
 - **O estado no Home Assistant está errado:** o IR não confirma o recebimento, então o estado é presumido. Uso do
   controle original só é captado quando o receptor enxerga o sinal e o protocolo tem suporte a recepção.
