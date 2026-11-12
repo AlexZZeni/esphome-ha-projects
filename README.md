@@ -118,6 +118,15 @@ A posição do sensor afeta a leitura:
 
 ## Primeira gravação
 
+No Debian e no Ubuntu, inclusive no WSL, instale antes o suporte a ambientes virtuais do Python. O ESPHome também
+precisa dele para compilar o firmware do ESP32:
+
+```sh
+sudo apt install python3-venv
+```
+
+Depois, instale o ESPHome e grave a placa:
+
 ```sh
 python3 -m venv .venv && .venv/bin/pip install esphome
 cp secrets.yaml.example secrets.yaml   # e preencha os valores
