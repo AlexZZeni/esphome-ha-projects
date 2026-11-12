@@ -1,6 +1,6 @@
 substitutions:
   # Protocolo do ar. Veja no README como descobrir o seu.
-  ac_platform: coolix
+  ac_platform: mirage
 
 esphome:
   name: ar-condicionado
@@ -8,6 +8,12 @@ esphome:
 
 esp32:
   board: esp32dev
+
+# Componentes deste repositório, como a plataforma mirage.
+external_components:
+  - source:
+      type: local
+      path: components
 
 logger:
 
@@ -38,8 +44,6 @@ remote_receiver:
     number: GPIO27
     inverted: true
     mode: INPUT_PULLUP
-  # Mostra no log os códigos do controle. Remova depois de identificar o protocolo.
-  dump: all
 
 i2c:
   sda: GPIO21

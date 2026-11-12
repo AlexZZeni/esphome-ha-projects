@@ -144,16 +144,38 @@ Com a placa no USB, escolha a porta serial. Se não tiver permissão de acesso, 
 
 ## Descobrir o protocolo
 
-1. Com o log aberto (`.venv/bin/esphome logs ar-condicionado.yaml`), aponte o controle para o receptor e aperte
-   alguns botões.
-2. Procure a linha com o nome do protocolo, como `Received Coolix: ...`.
-3. Altere `ac_platform` no YAML para a [plataforma correspondente](https://esphome.io/components/climate/climate_ir/)
+1. Adicione `dump: all` ao bloco `remote_receiver` do YAML e grave de novo. Assim, o log mostra os códigos que o
+   receptor capta.
+2. Com o log aberto (`.venv/bin/esphome logs ar-condicionado.yaml`), aponte o controle para o receptor e aperte
+   alguns botões. Mantenha o celular longe do receptor, porque os sensores da câmera emitem pulsos infravermelhos que
+   atrapalham a leitura.
+3. Procure a linha com o nome do protocolo, como `Received Coolix: ...`. Ignore linhas como `Received JVC` ou
+   `Received Pronto` que aparecem junto com outra: alguns decodificadores aceitam quase qualquer sinal.
+4. Altere `ac_platform` no YAML para a [plataforma correspondente](https://esphome.io/components/climate/climate_ir/)
    e grave de novo. Algumas plataformas pedem opções extras, como `model` na `gree`.
-4. Teste ligar, desligar e mudar a temperatura. Depois, remova o `dump: all`.
+5. Teste ligar, desligar e mudar a temperatura. Depois, remova o `dump: all`.
 
 Se o log mostrar só códigos brutos (`Received Raw`), o protocolo não foi reconhecido. Tente a plataforma da marca
 ou a [`heatpumpir`](https://esphome.io/components/climate/climate_ir/#heatpumpir). Se nenhuma funcionar, os
 códigos brutos capturados podem ser enviados como botões.
+
+### Controles Mirage
+
+O ESPHome reconhece o protocolo Mirage (`Received Mirage: 56:...`), mas não tem uma plataforma `climate` para ele.
+Este repositório inclui uma em `components/mirage`, que o YAML carrega com `external_components`. Ela foi feita para
+o controle do Super Split SS009, que segue o modelo KKG9AC1 do protocolo, e também atualiza o Home Assistant quando o
+controle original é usado.
+
+| Home Assistant | No controle |
+|---|---|
+| Modos `cool`, `heat`, `dry`, `fan_only` e `heat_cool` | Frio, aquecer, desumidificar, ventilar e automático |
+| Ventilação `auto`, `low`, `medium` e `high` | Automática, baixa, média e alta |
+| Swing `vertical` | Aleta em movimento |
+| Swing `off` | Aleta parada na última posição escolhida no controle original |
+
+No modo desumidificar, o controle sempre envia 17 °C, e a plataforma faz o mesmo.
+
+Os aparelhos já testados e o mapa de bytes do protocolo estão em [docs/modelos.md](docs/modelos.md).
 
 ## Home Assistant
 
