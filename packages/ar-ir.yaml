@@ -1,0 +1,8 @@
+# Ar-condicionado controlado por IR. Precisa dos pacotes ir e de um sensor com o id temperatura_ambiente.
+# A plataforma vem da substituição ac_platform, definida no YAML da placa.
+climate:
+  - platform: ${ac_platform}
+    name: None
+    transmitter_id: ir_tx
+    receiver_id: ir_rx
+    sensor: temperatura_ambiente

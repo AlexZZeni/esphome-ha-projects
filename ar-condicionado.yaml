@@ -1,5 +1,5 @@
 substitutions:
-  # Protocolo do ar. Veja no README como descobrir o seu.
+  # Protocolo do ar. Veja em docs/ar-condicionado.md como descobrir o seu.
   ac_platform: mirage
 
 esphome:
@@ -15,54 +15,8 @@ external_components:
       type: local
       path: components
 
-logger:
-
-api:
-  encryption:
-    key: !secret api_key
-
-ota:
-  - platform: esphome
-    password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ap:
-    password: !secret fallback_password
-
-captive_portal:
-
-remote_transmitter:
-  id: ir_tx
-  pin: GPIO4
-  carrier_duty_percent: 50%
-
-remote_receiver:
-  id: ir_rx
-  pin:
-    number: GPIO27
-    inverted: true
-    mode: INPUT_PULLUP
-
-i2c:
-  sda: GPIO21
-  scl: GPIO22
-
-sensor:
-  - platform: sht3xd
-    # Algumas plaquinhas usam 0x45.
-    address: 0x44
-    temperature:
-      name: Temperatura
-      id: temperatura_ambiente
-    humidity:
-      name: Humidade
-    update_interval: 60s
-
-climate:
-  - platform: ${ac_platform}
-    name: None
-    transmitter_id: ir_tx
-    receiver_id: ir_rx
-    sensor: temperatura_ambiente
+packages:
+  base: !include packages/base.yaml
+  ir: !include packages/ir.yaml
+  sht31: !include packages/sht31.yaml
+  ar: !include packages/ar-ir.yaml

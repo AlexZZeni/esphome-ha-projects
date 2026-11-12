@@ -1,0 +1,15 @@
+# Sensor de temperatura e humidade SHT31 no I²C.
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+
+sensor:
+  - platform: sht3xd
+    # Algumas plaquinhas usam 0x45.
+    address: 0x44
+    temperature:
+      name: Temperatura
+      id: temperatura_ambiente
+    humidity:
+      name: Humidade
+    update_interval: 60s

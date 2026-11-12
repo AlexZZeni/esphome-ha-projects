@@ -15,7 +15,7 @@ Aparelhos de ar-condicionado já testados com este projeto, com o protocolo do c
 
 ## Como adicionar um modelo
 
-1. Descubra o protocolo seguindo a seção "Descobrir o protocolo" do [README](../README.md#descobrir-o-protocolo).
+1. Descubra o protocolo seguindo a seção "Descobrir o protocolo" do [guia do ar-condicionado](ar-condicionado.md#descobrir-o-protocolo).
 2. Teste pelo Home Assistant: ligar, desligar, cada modo, a temperatura mínima e a máxima, e cada velocidade de
    ventilação.
 3. Acrescente uma linha na tabela com o modelo da etiqueta do aparelho, o protocolo que apareceu no log, a plataforma

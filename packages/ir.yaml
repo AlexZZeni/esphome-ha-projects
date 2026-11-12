@@ -1,0 +1,12 @@
+# Emissor e receptor infravermelho. Veja as ligações em docs/ar-condicionado.md.
+remote_transmitter:
+  id: ir_tx
+  pin: GPIO4
+  carrier_duty_percent: 50%
+
+remote_receiver:
+  id: ir_rx
+  pin:
+    number: GPIO27
+    inverted: true
+    mode: INPUT_PULLUP
