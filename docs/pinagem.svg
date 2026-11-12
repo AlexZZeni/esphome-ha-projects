@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="340" viewBox="0 0 760 340" role="img" aria-label="Pinagem vista de frente. Transistor 2N2222A com a face plana para você: emissor ao GND, base ao resistor de 1 quilo-ohm que vem do D4, coletor à perna curta do LED. Receptor VS1838B com a parte arredondada para você: OUT ao D27, GND ao GND e VCC ao 3V3.">
+<style>
+svg { color: #1b2327; background: #fbfcfc; }
+text { font: 12px "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: currentColor; text-anchor: middle; }
+.title { font-size: 15px; font-weight: 600; }
+.sub { font-size: 11.5px; fill: #55636a; }
+.pin { font: 600 13px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; }
+.role { font-size: 11.5px; fill: #55636a; }
+.dest { font-weight: 600; }
+.mark { font: 600 13px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; fill: #e7ecee; }
+.mark-sub { font: 11px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; fill: #aab4b9; }
+.body { fill: #2b3034; stroke: #14181a; stroke-width: 1.5; }
+.dome { fill: #3d4449; stroke: #14181a; stroke-width: 1.5; }
+.leg { stroke: #9aa4a9; stroke-width: 5; stroke-linecap: round; }
+.divider { stroke: #d5dddf; stroke-width: 1; }
+.t33 { fill: #c26a00; } .tgnd { fill: #20282c; } .tsig { fill: #7b3fc4; } .tled { fill: #5f6f76; }
+</style>
+<rect width="760" height="340" fill="#fbfcfc"/>
+
+<!-- Transistor -->
+<text x="200" y="36" class="title">Transistor 2N2222A</text>
+<text x="200" y="56" class="sub">face plana para você, terminais para baixo</text>
+<path class="body" d="M115 200V112Q115 80 147 80H253Q285 80 285 112V200Z"/>
+<text x="200" y="136" class="mark">2N2222A</text>
+<text x="200" y="156" class="mark-sub">331</text>
+<path class="leg" d="M140 202V250M200 202V250M260 202V250"/>
+<text x="140" y="274" class="pin">E</text>
+<text x="200" y="274" class="pin">B</text>
+<text x="260" y="274" class="pin">C</text>
+<text x="140" y="292" class="role">emissor</text>
+<text x="200" y="292" class="role">base</text>
+<text x="260" y="292" class="role">coletor</text>
+<text x="140" y="312" class="dest tgnd">GND</text>
+<text x="200" y="312" class="dest tsig">1 kΩ ← D4</text>
+<text x="260" y="312" class="dest tled">LED (−)</text>
+
+<path class="divider" d="M380 30V320"/>
+
+<!-- Receptor -->
+<text x="560" y="36" class="title">Receptor VS1838B</text>
+<text x="560" y="56" class="sub">parte arredondada para você, terminais para baixo</text>
+<rect class="body" x="490" y="88" width="140" height="112" rx="6"/>
+<circle class="dome" cx="560" cy="138" r="32"/>
+<path class="leg" d="M510 202V250M560 202V250M610 202V250"/>
+<text x="510" y="274" class="pin">OUT</text>
+<text x="560" y="274" class="pin">GND</text>
+<text x="610" y="274" class="pin">VCC</text>
+<text x="510" y="294" class="dest tsig">D27</text>
+<text x="560" y="294" class="dest tgnd">GND</text>
+<text x="610" y="294" class="dest t33">3V3</text>
+</svg>

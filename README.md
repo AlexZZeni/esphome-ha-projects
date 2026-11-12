@@ -36,7 +36,13 @@ Sensor SHT31
   SCL ── GPIO22
 ```
 
-Confira a pinagem do transistor e do receptor no datasheet do seu componente, porque ela muda entre modelos.
+### Pinagem dos componentes
+
+![Pinagem do transistor 2N2222A e do receptor VS1838B vistos de frente](docs/pinagem.svg)
+
+O VS1838B segue a ordem do datasheet. No 2N2222A em encapsulamento TO-92, a ordem E, B, C é a mais comum, mas alguns
+fabricantes usam C, B, E, como no P2N2222A. Na dúvida, use o modo hFE do multímetro: a posição que mostrar o maior
+valor indica a ordem certa.
 
 ## Sensor de temperatura e humidade
 
