@@ -49,13 +49,6 @@ globals:
   - id: luz_passo_cor
     type: int
     initial_value: "5"
-  # Valores gravados pela luz nas saídas: brilho de 0 a 1 (0 = apagada) e cor de 0 (W) a 1 (WW).
-  - id: luz_saida_brilho_valor
-    type: float
-    initial_value: "0"
-  - id: luz_saida_cor_valor
-    type: float
-    initial_value: "0.5"
   # Estado que o aparelho deve alcançar. O laço luz_enviar manda um passo por vez até chegar nele.
   - id: luz_alvo_ligada
     type: bool
@@ -94,25 +87,29 @@ script:
       - delay: 300ms
       - lambda: id(ventilador_ultimo_envio) = millis();
 
-  # Converte o que a luz gravou nas saídas em passos do aparelho e inicia o envio.
+  # Converte o estado pedido à luz em passos do aparelho e inicia o envio.
+  # Lê o estado da luz, e não as saídas, porque com a luz apagada a saída de brilho fica em zero e o brilho e a cor
+  # pedidos se perderiam.
   # O modo restart com a espera junta as duas saídas da luz e os movimentos do controle deslizante.
   - id: luz_aplicar
     mode: restart
     then:
       - delay: 150ms
       - lambda: |-
-          const bool ligar = id(luz_saida_brilho_valor) > 0.001f;
-          const int brilho = std::clamp((int) lroundf(id(luz_saida_brilho_valor) * 11) - 1, 0, 10);
-          const int cor = std::clamp((int) lroundf(id(luz_saida_cor_valor) * 10), 0, 10);
+          const auto &pedido = id(luz).remote_values;
+          auto traits = id(luz).get_traits();
+          const float frio = traits.get_min_mireds(), quente = traits.get_max_mireds();
+          const float nivel_cor = (pedido.get_color_temperature() - frio) / (quente - frio);
+          const bool ligar = pedido.is_on();
+          const int brilho = std::clamp((int) lroundf(pedido.get_brightness() * 11) - 1, 0, 10);
+          const int cor = std::clamp((int) lroundf(nivel_cor * 10), 0, 10);
+          if (brilho != id(luz_alvo_brilho))
+            id(luz_extra_brilho) = 0;
+          if (cor != id(luz_alvo_cor))
+            id(luz_extra_cor) = 0;
           id(luz_alvo_ligada) = ligar;
-          if (ligar) {
-            if (brilho != id(luz_alvo_brilho))
-              id(luz_extra_brilho) = 0;
-            if (cor != id(luz_alvo_cor))
-              id(luz_extra_cor) = 0;
-            id(luz_alvo_brilho) = brilho;
-            id(luz_alvo_cor) = cor;
-          }
+          id(luz_alvo_brilho) = brilho;
+          id(luz_alvo_cor) = cor;
           if (!id(luz_pronta)) {
             // No boot, o estado restaurado é só copiado, sem transmitir.
             id(luz_ligada) = ligar;
@@ -197,10 +194,8 @@ script:
           const float frio = traits.get_min_mireds(), quente = traits.get_max_mireds();
           auto call = id(luz).make_call();
           call.set_state(id(luz_ligada));
-          if (id(luz_ligada)) {
-            call.set_brightness((id(luz_passo_brilho) + 1) / 11.0f);
-            call.set_color_temperature(frio + (quente - frio) * id(luz_passo_cor) / 10.0f);
-          }
+          call.set_brightness((id(luz_passo_brilho) + 1) / 11.0f);
+          call.set_color_temperature(frio + (quente - frio) * id(luz_passo_cor) / 10.0f);
           call.set_transition_length(0);
           call.perform();
 
@@ -209,13 +204,11 @@ output:
     id: luz_saida_brilho
     type: float
     write_action:
-      - lambda: id(luz_saida_brilho_valor) = state;
       - script.execute: luz_aplicar
   - platform: template
     id: luz_saida_cor
     type: float
     write_action:
-      - lambda: id(luz_saida_cor_valor) = state;
       - script.execute: luz_aplicar
 
 light:
