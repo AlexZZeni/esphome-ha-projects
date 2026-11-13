@@ -20,3 +20,4 @@ packages:
   ir: !include packages/ir.yaml
   sht31: !include packages/sht31.yaml
   ar: !include packages/ar-ir.yaml
+  ventilador: !include packages/ventilador.yaml

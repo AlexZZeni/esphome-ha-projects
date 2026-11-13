@@ -7,6 +7,7 @@ Dispositivos feitos com ESP32 e [ESPHome](https://esphome.io/) para controlar a 
 | Projeto | Placa | Guia |
 |---|---|---|
 | Ar-condicionado por infravermelho, com sensor de temperatura e humidade | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
+| Ventilador de teto com luz por infravermelho | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ventilador.md](docs/ventilador.md) |
 
 ## Estrutura
 
@@ -24,6 +25,7 @@ secrets.yaml            senhas e chaves usadas por todas as placas (fica fora do
 | [`ir.yaml`](packages/ir.yaml) | Emissor IR no GPIO4 e receptor IR no GPIO27 |
 | [`sht31.yaml`](packages/sht31.yaml) | I²C no GPIO21 e GPIO22, com o sensor SHT31 (id `temperatura_ambiente`) |
 | [`ar-ir.yaml`](packages/ar-ir.yaml) | Ar-condicionado por IR. Precisa do `ir.yaml`, de um sensor com o id `temperatura_ambiente` e da substituição `ac_platform` |
+| [`ventilador.yaml`](packages/ventilador.yaml) | Ventilador de teto com luz por IR. Precisa do `ir.yaml` |
 
 ## Preparar o ambiente
 
