@@ -31,13 +31,14 @@ capturas do controle do Super Split SS009. O checksum vem depois dos 14 bytes e 
 |---|---|---|
 | 0 | todos | Cabeçalho, sempre `0x56` |
 | 1 | todos | Temperatura + `0x5C` (16 °C = `0x6C`, 32 °C = `0x7C`) |
+| 3 | 3 | Alterna o display. Só vem ligado no quadro do botão de display |
 | 4 | 4–7 | Modo: 1 aquecer, 2 frio, 3 desumidificar, 4 automático, 5 ventilar |
 | 4 | 0–1 | Ventilação: 0 automática, 1 alta, 2 baixa, 3 média |
 | 5 | 1–7 | Aleta: 3, 5, 7, 9 e 11 são posições fixas, de baixo para cima, e 13 é o movimento contínuo. Valores a partir de `0x5F` indicam desligado. |
 | 8 e 10 | todos | Sempre `0x0C` |
 | 11 a 13 | todos | Segundos, minutos e horas do relógio do controle, em binário. O aparelho ignora. |
 
-Os bytes 2, 3, 6, 7 e 9 ficaram em zero em todas as capturas.
+Os bytes 2, 6, 7 e 9 ficaram em zero em todas as capturas. O byte 3 só muda no botão de display.
 
 Detalhes do SS009 que diferem da documentação do IRremoteESP8266:
 - **Desligar:** o controle sempre envia `0xC0` no byte 5, qualquer que seja a posição da aleta.

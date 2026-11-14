@@ -16,6 +16,9 @@ class MirageClimate final : public climate_ir::ClimateIR {
                                climate::CLIMATE_FAN_HIGH},
                               {climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL}) {}
 
+  // Acende ou apaga o display do aparelho. O controle só tem um comando de alternar, sem estado.
+  void toggle_display();
+
  protected:
   static constexpr uint8_t SWING_MIDDLE = 7;
 
@@ -24,6 +27,8 @@ class MirageClimate final : public climate_ir::ClimateIR {
 
   // Posição fixa da aleta usada com o swing desligado. Acompanha a última escolhida no controle original.
   uint8_t fixed_swing_{SWING_MIDDLE};
+  // Pede que o próximo quadro leve o bit de alternar o display.
+  bool display_toggle_{false};
 };
 
 }  // namespace esphome::mirage

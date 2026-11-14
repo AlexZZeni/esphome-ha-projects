@@ -41,6 +41,14 @@ static const uint8_t BYTE5_OFF = 0xC0;
 // No modo desumidificar, o controle sempre envia 17 °C.
 static const uint8_t DRY_TEMP = 17;
 
+// Byte 3, bit 3: alterna o display. Só vai no quadro do botão de display; os outros comandos levam zero.
+static const uint8_t DISPLAY_TOGGLE = 0x08;
+
+void MirageClimate::toggle_display() {
+  this->display_toggle_ = true;
+  this->transmit_state();
+}
+
 void MirageClimate::transmit_state() {
   remote_base::MirageData frame;
   frame.data.assign(FRAME_SIZE, 0);
@@ -89,6 +97,10 @@ void MirageClimate::transmit_state() {
     celsius = DRY_TEMP;
 
   d[1] = celsius + TEMP_OFFSET;
+  if (this->display_toggle_) {
+    d[3] = DISPLAY_TOGGLE;
+    this->display_toggle_ = false;
+  }
   d[4] = (mode << 4) | fan;
   if (this->mode == climate::CLIMATE_MODE_OFF) {
     d[5] = BYTE5_OFF;

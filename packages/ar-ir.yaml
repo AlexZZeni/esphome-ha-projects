@@ -2,6 +2,7 @@
 # A plataforma vem da substituição ac_platform, definida no YAML da placa.
 climate:
   - platform: ${ac_platform}
+    id: ar_condicionado
     name: None
     transmitter_id: ir_tx
     receiver_id: ir_rx

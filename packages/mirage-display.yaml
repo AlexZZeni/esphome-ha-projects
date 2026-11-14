@@ -1,0 +1,9 @@
+# Botão que acende ou apaga o display de um ar-condicionado com controle Mirage.
+# Precisa do ar-ir.yaml com ac_platform: mirage. O controle só alterna o display, então o Home Assistant mostra um
+# botão, e não um interruptor com estado.
+button:
+  - platform: template
+    name: Display do ar
+    icon: mdi:television-ambient-light
+    on_press:
+      - lambda: id(ar_condicionado).toggle_display();

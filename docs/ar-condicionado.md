@@ -166,8 +166,12 @@ protocolo, e também atualiza o Home Assistant quando o controle original é usa
 | Ventilação `auto`, `low`, `medium` e `high` | Automática, baixa, média e alta |
 | Swing `vertical` | Aleta em movimento |
 | Swing `off` | Aleta parada na última posição escolhida no controle original |
+| Botão **Display do ar** | Botão de display: acende ou apaga o display |
 
 No modo desumidificar, o controle sempre envia 17 °C, e a plataforma faz o mesmo.
+
+O botão de display do controle só alterna, sem informar se o display está aceso. Por isso, no Home Assistant ele
+é um botão, e não um interruptor. Ele vem do pacote [`packages/mirage-display.yaml`](../packages/mirage-display.yaml).
 
 Os aparelhos já testados e o mapa de bytes do protocolo estão em [modelos.md](modelos.md).
 

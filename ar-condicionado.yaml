@@ -20,4 +20,5 @@ packages:
   ir: !include packages/ir.yaml
   sht31: !include packages/sht31.yaml
   ar: !include packages/ar-ir.yaml
+  ar_display: !include packages/mirage-display.yaml
   ventilador: !include packages/ventilador.yaml

@@ -25,6 +25,7 @@ secrets.yaml            senhas e chaves usadas por todas as placas (fica fora do
 | [`ir.yaml`](packages/ir.yaml) | Emissor IR no GPIO4 e receptor IR no GPIO27 |
 | [`sht31.yaml`](packages/sht31.yaml) | I²C no GPIO21 e GPIO22, com o sensor SHT31 (id `temperatura_ambiente`) |
 | [`ar-ir.yaml`](packages/ar-ir.yaml) | Ar-condicionado por IR. Precisa do `ir.yaml`, de um sensor com o id `temperatura_ambiente` e da substituição `ac_platform` |
+| [`mirage-display.yaml`](packages/mirage-display.yaml) | Botão que acende ou apaga o display do ar. Só para `ac_platform: mirage` |
 | [`ventilador.yaml`](packages/ventilador.yaml) | Ventilador de teto com luz por IR. Precisa do `ir.yaml` |
 
 ## Preparar o ambiente
