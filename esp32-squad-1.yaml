@@ -1,0 +1,16 @@
+substitutions:
+  # Protocolo do ar. Veja em docs/ar-condicionado.md como descobrir o seu.
+  ac_platform: coolix
+
+esphome:
+  name: esp32-squad-1
+  friendly_name: ESP32 Squad 1
+
+esp32:
+  board: esp32dev
+
+packages:
+  base: !include packages/base.yaml
+  ir: !include packages/ir.yaml
+  sht31: !include packages/sht31.yaml
+  ar: !include packages/ar-ir.yaml
