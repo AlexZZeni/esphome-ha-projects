@@ -8,6 +8,7 @@ Dispositivos feitos com ESP32 e [ESPHome](https://esphome.io/) para controlar a 
 |---|---|---|
 | Ar-condicionado por infravermelho, com sensor de temperatura e humidade | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
 | Ventilador de teto com luz por infravermelho | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ventilador.md](docs/ventilador.md) |
+| Ar-condicionado Midea com controle Carrier (protocolo Coolix), com sensor de temperatura e humidade | [`esp32-squad-1.yaml`](esp32-squad-1.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
 
 ## Estrutura
 
