@@ -1,0 +1,21 @@
+substitutions:
+  # Entidades do Home Assistant que aparecem na tela. Confira os nomes em Configurações > Entidades.
+  ar1_entidade: climate.ar_condicionado
+  ar1_nome: Ar-condicionado
+  ar2_entidade: climate.esp32_squad_1
+  ar2_nome: Squad 1
+  luz_entidade: light.ar_condicionado_luz
+  ventilador_entidade: fan.ar_condicionado_ventilador
+  temperatura_entidade: sensor.ar_condicionado_temperatura
+
+esphome:
+  name: painel
+  friendly_name: Painel
+
+esp32:
+  board: esp32dev
+
+packages:
+  base: !include packages/base.yaml
+  cyd: !include packages/cyd.yaml
+  ui: !include packages/painel-ui.yaml

@@ -1,0 +1,341 @@
+# Tela de atalhos para o Home Assistant: dois ares-condicionados, a luz e o ventilador.
+# Precisa do cyd.yaml (ou de outra placa com display id tela, toque id toque e light id luz_de_fundo).
+#
+# As entidades vêm das substituições, definidas no YAML da placa:
+#   ar1_entidade, ar1_nome, ar2_entidade, ar2_nome, luz_entidade, ventilador_entidade, temperatura_entidade
+#
+# A placa mostra o estado que o Home Assistant informa e, ao toque, pede a ação para ele. Por isso a integração
+# da placa no Home Assistant precisa permitir ações (veja docs/painel.md).
+#
+# Depois de 60 s sem toque, a tela apaga. O primeiro toque só acende de novo, sem acionar nada.
+
+# --- Estado vindo do Home Assistant -----------------------------------------------------------------------------
+
+text_sensor:
+  # O estado de um ar é o modo: off, cool, heat, auto... ou unavailable.
+  - platform: homeassistant
+    id: ar1_modo
+    entity_id: ${ar1_entidade}
+    on_value:
+      - lvgl.widget.update:
+          id: ar1_ligar
+          state:
+            checked: !lambda return x != "off" && x != "unavailable" && x != "unknown";
+  - platform: homeassistant
+    id: ar2_modo
+    entity_id: ${ar2_entidade}
+    on_value:
+      - lvgl.widget.update:
+          id: ar2_ligar
+          state:
+            checked: !lambda return x != "off" && x != "unavailable" && x != "unknown";
+
+sensor:
+  - platform: homeassistant
+    id: ar1_alvo
+    entity_id: ${ar1_entidade}
+    attribute: temperature
+    on_value:
+      - lvgl.label.update:
+          id: ar1_alvo_texto
+          text:
+            format: "%.0f°"
+            args: [x]
+  - platform: homeassistant
+    id: ar2_alvo
+    entity_id: ${ar2_entidade}
+    attribute: temperature
+    on_value:
+      - lvgl.label.update:
+          id: ar2_alvo_texto
+          text:
+            format: "%.0f°"
+            args: [x]
+  - platform: homeassistant
+    id: temperatura_casa
+    entity_id: ${temperatura_entidade}
+    on_value:
+      - lvgl.label.update:
+          id: temperatura_texto
+          text:
+            format: "%.1f °C"
+            args: [x]
+
+binary_sensor:
+  - platform: homeassistant
+    id: luz_ligada_ha
+    entity_id: ${luz_entidade}
+    on_state:
+      - lvgl.widget.update:
+          id: botao_luz
+          state:
+            checked: !lambda return x;
+  - platform: homeassistant
+    id: ventilador_ligado_ha
+    entity_id: ${ventilador_entidade}
+    on_state:
+      - lvgl.widget.update:
+          id: botao_ventilador
+          state:
+            checked: !lambda return x;
+
+# --- Conexão ----------------------------------------------------------------------------------------------------
+
+api:
+  on_client_connected:
+    - lvgl.label.update:
+        id: conexao_texto
+        text: ""
+  on_client_disconnected:
+    - lvgl.label.update:
+        id: conexao_texto
+        text: "desconectado"
+
+# --- Ações ------------------------------------------------------------------------------------------------------
+
+script:
+  # Liga o ar se estiver desligado e desliga se estiver ligado.
+  - id: ar_alternar
+    parameters:
+      entidade: std::string
+      ligado: bool
+    then:
+      - homeassistant.action:
+          action: !lambda |-
+            return ligado ? "climate.turn_off" : "climate.turn_on";
+          data:
+            entity_id: !lambda return entidade;
+  # Muda a temperatura desejada do ar em passos de 1 °C.
+  - id: ar_ajustar
+    parameters:
+      entidade: std::string
+      temperatura: float
+    then:
+      - homeassistant.action:
+          action: climate.set_temperature
+          data:
+            entity_id: !lambda return entidade;
+            temperature: !lambda return to_string((int) roundf(temperatura));
+
+# --- Tela -------------------------------------------------------------------------------------------------------
+
+touchscreen:
+  - id: !extend toque
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - light.turn_on: luz_de_fundo
+
+lvgl:
+  displays: tela
+  touchscreens: toque
+  # Deita a tela, com o USB à direita. O LVGL gira o toque junto.
+  rotation: 90
+  # O ESP32 da CYD não tem PSRAM. Um quarto da tela é o bastante e deixa memória livre.
+  buffer_size: 25%
+  on_idle:
+    timeout: 60s
+    then:
+      - light.turn_off: luz_de_fundo
+      - lvgl.pause:
+
+  theme:
+    button:
+      bg_color: 0x2B2F36
+      text_color: 0xE6E6E6
+      radius: 10
+      border_width: 0
+      checked:
+        bg_color: 0xF2A33A
+        text_color: 0x1A1A1A
+    obj:
+      bg_color: 0x1E2126
+      border_width: 0
+      radius: 12
+      pad_all: 0
+      scrollable: false
+
+  style_definitions:
+    - id: estilo_cartao
+      bg_color: 0x1E2126
+      radius: 12
+    - id: estilo_botao_pequeno
+      text_font: montserrat_20
+      radius: 8
+
+  pages:
+    - id: inicio
+      bg_color: 0x121417
+      scrollable: false
+      widgets:
+        # Cabeçalho: temperatura e aviso de conexão.
+        - label:
+            id: temperatura_texto
+            x: 10
+            y: 6
+            text: "-- °C"
+            text_color: 0xE6E6E6
+        - label:
+            id: conexao_texto
+            align: TOP_RIGHT
+            x: -10
+            y: 6
+            text: "desconectado"
+            text_color: 0xE06C5A
+
+        # Ar 1
+        - obj:
+            styles: estilo_cartao
+            x: 6
+            y: 30
+            width: 151
+            height: 130
+            widgets:
+              - label:
+                  align: TOP_MID
+                  y: 6
+                  text: ${ar1_nome}
+                  text_color: 0xA0A6AE
+              - label:
+                  id: ar1_alvo_texto
+                  align: TOP_MID
+                  y: 28
+                  text: "--°"
+                  text_font: montserrat_28
+                  text_color: 0xE6E6E6
+              - button:
+                  styles: estilo_botao_pequeno
+                  align: BOTTOM_LEFT
+                  x: 6
+                  y: -6
+                  width: 40
+                  height: 40
+                  widgets:
+                    - label: { align: CENTER, text: "-" }
+                  on_click:
+                    - script.execute:
+                        id: ar_ajustar
+                        entidade: ${ar1_entidade}
+                        temperatura: !lambda return id(ar1_alvo).state - 1;
+              - button:
+                  id: ar1_ligar
+                  styles: estilo_botao_pequeno
+                  align: BOTTOM_MID
+                  y: -6
+                  width: 51
+                  height: 40
+                  widgets:
+                    - label: { align: CENTER, text: "" }
+                  on_click:
+                    - script.execute:
+                        id: ar_alternar
+                        entidade: ${ar1_entidade}
+                        ligado: !lambda return lv_obj_has_state(id(ar1_ligar), LV_STATE_CHECKED);
+              - button:
+                  styles: estilo_botao_pequeno
+                  align: BOTTOM_RIGHT
+                  x: -6
+                  y: -6
+                  width: 40
+                  height: 40
+                  widgets:
+                    - label: { align: CENTER, text: "+" }
+                  on_click:
+                    - script.execute:
+                        id: ar_ajustar
+                        entidade: ${ar1_entidade}
+                        temperatura: !lambda return id(ar1_alvo).state + 1;
+
+        # Ar 2
+        - obj:
+            styles: estilo_cartao
+            x: 163
+            y: 30
+            width: 151
+            height: 130
+            widgets:
+              - label:
+                  align: TOP_MID
+                  y: 6
+                  text: ${ar2_nome}
+                  text_color: 0xA0A6AE
+              - label:
+                  id: ar2_alvo_texto
+                  align: TOP_MID
+                  y: 28
+                  text: "--°"
+                  text_font: montserrat_28
+                  text_color: 0xE6E6E6
+              - button:
+                  styles: estilo_botao_pequeno
+                  align: BOTTOM_LEFT
+                  x: 6
+                  y: -6
+                  width: 40
+                  height: 40
+                  widgets:
+                    - label: { align: CENTER, text: "-" }
+                  on_click:
+                    - script.execute:
+                        id: ar_ajustar
+                        entidade: ${ar2_entidade}
+                        temperatura: !lambda return id(ar2_alvo).state - 1;
+              - button:
+                  id: ar2_ligar
+                  styles: estilo_botao_pequeno
+                  align: BOTTOM_MID
+                  y: -6
+                  width: 51
+                  height: 40
+                  widgets:
+                    - label: { align: CENTER, text: "" }
+                  on_click:
+                    - script.execute:
+                        id: ar_alternar
+                        entidade: ${ar2_entidade}
+                        ligado: !lambda return lv_obj_has_state(id(ar2_ligar), LV_STATE_CHECKED);
+              - button:
+                  styles: estilo_botao_pequeno
+                  align: BOTTOM_RIGHT
+                  x: -6
+                  y: -6
+                  width: 40
+                  height: 40
+                  widgets:
+                    - label: { align: CENTER, text: "+" }
+                  on_click:
+                    - script.execute:
+                        id: ar_ajustar
+                        entidade: ${ar2_entidade}
+                        temperatura: !lambda return id(ar2_alvo).state + 1;
+
+        # Luz e ventilador
+        - button:
+            id: botao_luz
+            x: 6
+            y: 166
+            width: 151
+            height: 68
+            widgets:
+              - label: { align: CENTER, text: "Luz", text_font: montserrat_20 }
+            on_click:
+              - homeassistant.action:
+                  action: light.toggle
+                  data:
+                    entity_id: ${luz_entidade}
+        - button:
+            id: botao_ventilador
+            x: 163
+            y: 166
+            width: 151
+            height: 68
+            widgets:
+              - label: { align: CENTER, text: "Ventilador", text_font: montserrat_20 }
+            on_click:
+              - homeassistant.action:
+                  action: fan.toggle
+                  data:
+                    entity_id: ${ventilador_entidade}

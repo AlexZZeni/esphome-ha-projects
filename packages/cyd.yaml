@@ -1,0 +1,60 @@
+# Hardware da Cheap Yellow Display (ESP32-2432S028R): tela de 2.8" 320×240 com toque resistivo.
+# A tela fica deitada, com o conector USB à direita. Veja em docs/painel.md como calibrar o toque.
+#
+# A placa tem dois barramentos SPI: um para a tela e outro para o toque.
+#   Tela ILI9341: CLK 14, MOSI 13, MISO 12, CS 15, DC 2, luz de fundo 21.
+#   Toque XPT2046: CLK 25, MOSI 32, MISO 39, CS 33, IRQ 36.
+#
+# Se as cores saírem trocadas ou a tela ficar branca, a sua placa pode ter outro controlador. Troque o model por
+# ESP32-2432S028-7789 (ST7789) ou ESP32-2432S028-9342 (ILI9342). As placas com dois USB costumam ser assim.
+
+spi:
+  - id: spi_tela
+    clk_pin: GPIO14
+    mosi_pin: GPIO13
+    miso_pin: GPIO12
+  - id: spi_toque
+    clk_pin: GPIO25
+    mosi_pin: GPIO32
+    miso_pin: GPIO39
+
+display:
+  - platform: mipi_spi
+    id: tela
+    model: ESP32-2432S028
+    spi_id: spi_tela
+    # O LVGL desenha a tela. Sem isto, o display tentaria redesenhar sozinho.
+    auto_clear_enabled: false
+    update_interval: never
+
+touchscreen:
+  - platform: xpt2046
+    id: toque
+    spi_id: spi_toque
+    cs_pin: GPIO33
+    interrupt_pin: GPIO36
+    display: tela
+    # Valores crus do sensor nas bordas da tela. Cada placa varia um pouco.
+    calibration:
+      x_min: 280
+      x_max: 3860
+      y_min: 340
+      y_max: 3860
+    # Mostra no log onde cada toque caiu. Use para calibrar e depois pode apagar.
+    on_touch:
+      - logger.log:
+          format: "Toque em x=%d, y=%d (cru x=%d, y=%d)"
+          args: [touch.x, touch.y, touch.x_raw, touch.y_raw]
+
+output:
+  - platform: ledc
+    id: luz_de_fundo_pwm
+    pin: GPIO21
+
+light:
+  - platform: monochromatic
+    id: luz_de_fundo
+    name: Tela
+    output: luz_de_fundo_pwm
+    restore_mode: ALWAYS_ON
+    default_transition_length: 250ms

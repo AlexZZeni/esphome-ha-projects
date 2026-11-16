@@ -9,6 +9,7 @@ Dispositivos feitos com ESP32 e [ESPHome](https://esphome.io/) para controlar a 
 | Ar-condicionado por infravermelho, com sensor de temperatura e humidade | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
 | Ventilador de teto com luz por infravermelho | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ventilador.md](docs/ventilador.md) |
 | Ar-condicionado Midea com controle Carrier (protocolo Coolix), com sensor de temperatura e humidade | [`esp32-squad-1.yaml`](esp32-squad-1.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
+| Painel de toque com atalhos para os ares, a luz e o ventilador | [`painel.yaml`](painel.yaml) | [docs/painel.md](docs/painel.md) |
 
 ## Estrutura
 
@@ -28,6 +29,8 @@ secrets.yaml            senhas e chaves usadas por todas as placas (fica fora do
 | [`ar-ir.yaml`](packages/ar-ir.yaml) | Ar-condicionado por IR. Precisa do `ir.yaml`, de um sensor com o id `temperatura_ambiente` e da substituição `ac_platform` |
 | [`mirage-display.yaml`](packages/mirage-display.yaml) | Botão que acende ou apaga o display do ar. Só para `ac_platform: mirage` |
 | [`ventilador.yaml`](packages/ventilador.yaml) | Ventilador de teto com luz por IR. Precisa do `ir.yaml` |
+| [`cyd.yaml`](packages/cyd.yaml) | Tela, toque e luz de fundo da Cheap Yellow Display (ESP32-2432S028R) |
+| [`painel-ui.yaml`](packages/painel-ui.yaml) | Tela de atalhos para o Home Assistant. Precisa do `cyd.yaml` e das substituições de entidades |
 
 ## Preparar o ambiente
 
