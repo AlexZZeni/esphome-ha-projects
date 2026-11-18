@@ -1,0 +1,34 @@
+# TV LG controlada por IR (protocolo NEC, endereço 0x04). Precisa do pacote ir.
+#
+# O ESPHome guarda o NEC como "inverso << 8 | valor": o endereço 0x04 vira 0xFB04 e o botão 0x08 vira 0xF708.
+# Códigos padrão das TVs LG. Se a sua não responder, capture os do controle com dump: all (veja docs/ar-condicionado.md).
+#
+# A TV não informa o estado, então são botões que repetem o controle: o liga/desliga só alterna.
+
+button:
+  - platform: template
+    name: TV liga-desliga
+    icon: mdi:power
+    on_press:
+      - remote_transmitter.transmit_nec:
+          transmitter_id: ir_tx
+          address: 0xFB04
+          command: 0xF708
+
+  - platform: template
+    name: TV volume +
+    icon: mdi:volume-plus
+    on_press:
+      - remote_transmitter.transmit_nec:
+          transmitter_id: ir_tx
+          address: 0xFB04
+          command: 0xFD02
+
+  - platform: template
+    name: TV volume -
+    icon: mdi:volume-minus
+    on_press:
+      - remote_transmitter.transmit_nec:
+          transmitter_id: ir_tx
+          address: 0xFB04
+          command: 0xFC03
