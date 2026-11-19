@@ -86,3 +86,9 @@ Em paralelo com o controlador, sem desligar nada:
 - Saber se os dois aparelhos estão no mesmo cabo
 - Medição opcional em tensão alternada entre Y/A e G/B com o aparelho ligado: qualquer valor acima de zero confirma
   que há dados passando
+
+## Modelo de exemplo
+
+Unidade External: 38EVC10386S
+Unidade Interna: 40VX10HHG236V1V
+Controlador: Não consegui achar o modelo porem ele é conectado por 4 fios (12v, GND, Y/A, G/B)
