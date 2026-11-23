@@ -17,6 +17,14 @@ ESP32 no mesmo cabo do controlador com fio da parede.
 
 O comando do aparelho trabalha em 12 V: o controlador é alimentado pelo fio de 12V e as contatoras são de 12 V.
 
+Além da temperatura ambiente, do modo e da temperatura desejada, o controlador mostra dados da unidade externa:
+
+- temperatura externa
+- temperatura do condensador
+- temperatura de sucção
+- código de erro da unidade externa
+- corrente dos compressores, só em um dos dois aparelhos
+
 São dois conjuntos iguais. Ainda não se sabe se os dois ficam no mesmo cabo ou se cada um tem o seu controlador.
 
 O [manual do Ecosplit](https://cdn.carrierdobrasil.com.br/downloads_docs/1196f-CT-Ecosplit-Inverter-J-11-14--view-.pdf)
@@ -38,6 +46,8 @@ Conclusão: Y/A e G/B são as linhas A e B de um barramento **RS-485 de 5 V**, e
   Aqui a tensão não muda e nunca chega perto de 12 V. Quem aciona as contatoras é a placa da evaporadora.
 - Um termostato precisaria de um fio a mais para o aquecimento, o W. O cabo só tem dois sinais e ainda assim
   controla as resistências.
+- O controlador mostra temperaturas e o código de erro da unidade externa. Esses dados chegam a ele pelo cabo, então
+  a comunicação vai nos dois sentidos. Um termostato só mandaria pedidos e não receberia nada.
 - Em repouso, o RS-485 mantém a linha A perto da alimentação e a linha B perto do GND, o que bate com 4,4 V e
   0,32 V. O multímetro mostra a média, então a comunicação não aparece quando os dados são poucos.
 
@@ -59,10 +69,16 @@ ESPHome. As fotos da placa ajudam a confirmar. Mesmo assim, a captura continua n
    comparar os bytes de cada comando. Para a velocidade, testar as mais comuns: 4800, 9600 e 19200 baud. Um
    analisador lógico barato (clone do Saleae) mede a largura do bit direto e confirma que o sinal é diferencial.
 2. **Mapear o protocolo.** Usar o controlador da parede enquanto a captura roda: ligar, desligar, cada modo,
-   aquecimento, temperatura mínima e máxima e cada velocidade de ventilação. O mapa dos bytes vai para
+   aquecimento, temperatura mínima e máxima e cada velocidade de ventilação. Passar também por cada tela de leitura
+   e anotar no log o valor mostrado, por exemplo "externa 31, sucção 8, corrente 12,4". Assim dá para achar o byte de
+   cada valor. Ele pode vir com deslocamento, multiplicado por 2 ou por 10, ou como leitura bruta do sensor. Algumas
+   leituras podem passar no cabo só enquanto a tela correspondente está aberta. O mapa dos bytes vai para
    [modelos.md](modelos.md).
 3. **Ler pelo Home Assistant.** Um ESP32 com um módulo MAX485 escuta o barramento e mostra o estado real de cada
-   aparelho, ainda sem enviar comandos. O ESP32 é alimentado por uma fonte externa, e não pelo 12V do cabo. O GND
+   aparelho, ainda sem enviar comandos. Além do modo e das temperaturas ambiente e desejada, as leituras da unidade
+   externa viram sensores no Home Assistant: temperatura externa, do condensador e de sucção, código de erro e
+   corrente dos compressores. Com isso dá para acompanhar o funcionamento e receber um alerta quando aparecer um
+   erro. O ESP32 é alimentado por uma fonte externa, e não pelo 12V do cabo. O GND
    do MAX485 (e da fonte) precisa ser ligado ao GND do cabo do controlador. Sem esse GND em comum, a referência fica
    solta e a leitura pode falhar ou dar erros.
 4. **Controlar.** No RS-485, só um lado pode comandar por vez. Depois da captura, escolher entre trocar o controlador
@@ -174,5 +190,7 @@ mexer no RTS no instante em que a porta abre, isso acontece com o adaptador aind
 
 - Fotos do controlador por trás e da régua de bornes da evaporadora, para achar o modelo do controlador e da placa
 - Saber se os dois aparelhos estão no mesmo cabo
+- Saber por que só um dos aparelhos mostra a corrente dos compressores: controlador, placa ou versão diferente.
+  Vale capturar os dois aparelhos, porque os protocolos podem ter diferenças
 - Medição opcional em tensão alternada entre Y/A e G/B com o aparelho ligado: qualquer valor acima de zero confirma
   que há dados passando
