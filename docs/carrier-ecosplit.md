@@ -128,6 +128,48 @@ O adaptador comprado foi testado na bancada, ainda fora do barramento:
 > porta.open()
 > ```
 
+### Script de captura
+
+O [`tools/captura_rs485.py`](../tools/captura_rs485.py) escuta o barramento sem nunca transmitir. Ele abre a porta
+com o RTS e o DTR desligados e não escreve nada nela.
+
+No Windows, instale o Python e o `pyserial` uma vez:
+
+```powershell
+winget install Python.Python.3.13
+py -m pip install pyserial
+```
+
+Primeiro descubra a velocidade. A varredura escuta 15 segundos em cada velocidade comum, de 1200 a 115200 baud.
+Use o controlador da parede durante a varredura para gerar tráfego:
+
+```powershell
+py tools\captura_rs485.py COM6 --varrer
+```
+
+Para cada velocidade, o script mostra quantos quadros chegaram e quantos se repetem. Na velocidade certa, os quadros
+de consulta periódica costumam se repetir iguais. Em velocidade errada os bytes também podem se repetir, então confira
+se os quadros fazem sentido. Se nada ficar claro, repita com `--paridade E`.
+
+Depois, capture na velocidade encontrada:
+
+```powershell
+py tools\captura_rs485.py COM6 --baud 4800 --so-novos
+```
+
+- Cada quadro vai para um arquivo `captura-DATA-HORA.txt`, com o horário e o tempo desde o quadro anterior.
+- Quadros nunca vistos antes são marcados com `*`. Com `--so-novos`, a tela mostra só esses, e o log continua com
+  todos.
+- Digite uma anotação e aperte Enter antes de cada ação no controlador, por exemplo "liguei frio". Ela entra no log
+  no horário certo e mostra quais quadros novos vieram depois dela.
+- Ctrl+C encerra e grava um resumo com cada quadro diferente e quantas vezes apareceu.
+
+Se os quadros vierem quebrados em pedaços, aumente o silêncio que separa um quadro do outro, por exemplo com
+`--pausa 50` (em milissegundos).
+
+Abra o script antes de ligar A e B no cabo do controlador e deixe ele aberto durante a sessão. Assim, se o sistema
+mexer no RTS no instante em que a porta abre, isso acontece com o adaptador ainda solto.
+
 ## Pendências
 
 - Fotos do controlador por trás e da régua de bornes da evaporadora, para achar o modelo do controlador e da placa

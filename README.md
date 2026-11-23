@@ -18,6 +18,7 @@ ar-condicionado.yaml    uma placa = um arquivo, que inclui os pacotes de que ela
 packages/               partes reutilizáveis: rede, IR, sensores e aparelhos
 components/             componentes próprios do ESPHome, como a plataforma mirage
 docs/                   guia de cada projeto, diagramas e modelos testados
+tools/                  scripts para usar no PC, como a captura do barramento RS-485
 secrets.yaml            senhas e chaves usadas por todas as placas (fica fora do git)
 ```
 
