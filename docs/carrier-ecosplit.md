@@ -93,6 +93,41 @@ Em paralelo com o controlador, sem desligar nada:
 - Mexa só no cabo do controlador. A alimentação do aparelho é de 380 V.
 - Nunca ligue esses fios direto em um GPIO do ESP32. O ESP32 usa 3,3 V e precisa do módulo MAX485 no meio.
 
+### Teste do adaptador
+
+O adaptador comprado foi testado na bancada, ainda fora do barramento:
+
+- O Windows reconhece como "USB-SERIAL CH340" (VID 1A86, PID 7523) e instala o driver sozinho. O número da porta
+  COM muda de um PC para outro.
+- **O transmissor só liga com o RTS ativo.** O adaptador não detecta o envio sozinho. Com o RTS desligado, ele só
+  escuta e não mexe no barramento.
+- Medições com A e B soltos, enviando `0x00` sem parar a 9600 baud:
+
+  | Situação | A–GND | B–GND | A–B |
+  |---|---|---|---|
+  | Repouso (sem polarização no adaptador) | — | — | 0,07 V |
+  | Enviando com RTS e DTR desligados | — | — | 0 V |
+  | Enviando com o RTS ligado | 1,0 V | 3,9 V | −2,8 V |
+
+  O valor de A–B é negativo porque o `0x00` deixa a linha em 0 em 90% do tempo, e o multímetro mostra a média.
+- Os bytes enviados não voltam pela mesma porta. O receptor desliga enquanto o transmissor está ligado, então a
+  recepção só pode ser testada no barramento.
+
+> **Atenção na captura:** muitos programas ligam o RTS e o DTR sozinhos ao abrir a porta, como o `pyserial` por
+> padrão e o PuTTY. Com o adaptador no cabo do controlador, isso faz ele forçar o barramento e atrapalha a
+> comunicação do aparelho. Abra a porta com os dois desligados. No `pyserial`, configure antes de abrir:
+>
+> ```python
+> import serial
+>
+> porta = serial.Serial()
+> porta.port = "COM6"
+> porta.baudrate = 9600
+> porta.rts = False
+> porta.dtr = False
+> porta.open()
+> ```
+
 ## Pendências
 
 - Fotos do controlador por trás e da régua de bornes da evaporadora, para achar o modelo do controlador e da placa
