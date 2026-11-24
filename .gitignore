@@ -2,3 +2,7 @@ secrets.yaml
 .venv/
 .esphome/
 __pycache__/
+
+# Capturas e leituras do barramento RS-485 (tools/)
+captura-*.txt
+*.csv

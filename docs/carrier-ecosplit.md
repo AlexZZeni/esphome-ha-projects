@@ -23,9 +23,20 @@ Além da temperatura ambiente, do modo e da temperatura desejada, o controlador 
 - temperatura do condensador
 - temperatura de sucção
 - código de erro da unidade externa
-- corrente dos compressores, só em um dos dois aparelhos
+- temperaturas de descarga 1 e 2
 
-São dois conjuntos iguais. Ainda não se sabe se os dois ficam no mesmo cabo ou se cada um tem o seu controlador.
+Os dois aparelhos são do mesmo modelo, e cada um tem dois compressores: um inverter (1º estágio) e um fixo (2º
+estágio). Mesmo assim, os controladores não mostram as mesmas leituras extras:
+
+| Aparelho | Leituras extras no controlador |
+|---|---|
+| Este, já capturado | Corrente 1 e corrente 2 |
+| O outro | Frequência do compressor, corrente do compressor, temperatura do dissipador e tensão do barramento DC |
+
+Como o equipamento é igual, a diferença deve estar no controlador (versão ou configuração). O barramento deste
+aparelho provavelmente já leva os dados do inverter em bytes ainda não identificados.
+
+São dois conjuntos iguais. A captura indica que cada aparelho tem o seu cabo e o seu controlador.
 
 O [manual do Ecosplit](https://cdn.carrierdobrasil.com.br/downloads_docs/1196f-CT-Ecosplit-Inverter-J-11-14--view-.pdf)
 lista a 38EVC10386S como condensadora compatível com as evaporadoras 40VX. Não foi encontrado o esquema de ligação
@@ -55,12 +66,12 @@ Como o barramento é digital, a placa da evaporadora continua decidindo quando l
 proteções do aparelho, como não ligar a resistência com o ventilador parado. O ESP32 só envia os mesmos pedidos que
 o controlador.
 
-O protocolo não está documentado. Ele precisa ser descoberto por captura, como foi feito com o controle
-[Mirage](modelos.md#protocolo-mirage-kkg9ac1).
+O protocolo não está documentado e está sendo descoberto por captura, como foi feito com o controle
+[Mirage](modelos.md#protocolo-mirage-kkg9ac1). A primeira captura confirmou RS-485 a 9600 baud, 8N1. O mapa dos
+quadros está em [modelos.md](modelos.md#protocolo-carrier-ecosplit-barramento-do-controlador).
 
-Hipótese ainda não confirmada: a Carrier do Brasil faz parte da Midea. Se a placa da evaporadora for de base Midea,
-o barramento pode ser o protocolo XYE, que é RS-485 a 4800 baud, 8N1, e já tem projetos da comunidade para o
-ESPHome. As fotos da placa ajudam a confirmar. Mesmo assim, a captura continua necessária para conferir os bytes.
+Não é o protocolo XYE da Midea, que era uma das hipóteses: o XYE usa 4800 baud e quadros que começam com `AA`. Aqui os
+quadros começam com `9A 56`.
 
 ## Plano
 
@@ -82,7 +93,9 @@ ESPHome. As fotos da placa ajudam a confirmar. Mesmo assim, a captura continua n
    do MAX485 (e da fonte) precisa ser ligado ao GND do cabo do controlador. Sem esse GND em comum, a referência fica
    solta e a leitura pode falhar ou dar erros.
 4. **Controlar.** No RS-485, só um lado pode comandar por vez. Depois da captura, escolher entre trocar o controlador
-   pelo ESP32 ou enviar comandos sem atrapalhar o controlador.
+   pelo ESP32 ou enviar comandos sem atrapalhar o controlador. A placa da evaporadora consulta um endereço `F1` que
+   ninguém responde. Se ele for a vaga de um segundo controlador, o ESP32 pode responder como `F1` sem brigar com o
+   controlador da parede. Isso só pode ser testado transmitindo.
 
 ## Captura pelo PC
 
@@ -163,9 +176,11 @@ Use o controlador da parede durante a varredura para gerar tráfego:
 py tools\captura_rs485.py COM6 --varrer
 ```
 
-Para cada velocidade, o script mostra quantos quadros chegaram e quantos se repetem. Na velocidade certa, os quadros
-de consulta periódica costumam se repetir iguais. Em velocidade errada os bytes também podem se repetir, então confira
-se os quadros fazem sentido. Se nada ficar claro, repita com `--paridade E`.
+Para cada velocidade, o script mostra quantos quadros chegaram, quantos se repetem e a média de transições de bit
+por byte. Na velocidade certa, os quadros de consulta periódica costumam se repetir iguais. Em velocidade alta demais,
+cada bit real vira vários bits iguais, e os bytes viram quase só `00`, `80`, `E0` e `F8`. Eles também se repetem, mas
+têm poucas transições, e o script marca essas velocidades como "rápida demais". Confira se os quadros fazem sentido.
+Se nada ficar claro, repita com `--paridade E`. No Ecosplit, a velocidade certa foi 9600 baud.
 
 Depois, capture na velocidade encontrada:
 
@@ -186,11 +201,32 @@ Se os quadros vierem quebrados em pedaços, aumente o silêncio que separa um qu
 Abra o script antes de ligar A e B no cabo do controlador e deixe ele aberto durante a sessão. Assim, se o sistema
 mexer no RTS no instante em que a porta abre, isso acontece com o adaptador ainda solto.
 
+### Monitor ao vivo
+
+O [`tools/monitor_ecosplit.py`](../tools/monitor_ecosplit.py) lê o barramento pelo adaptador e mostra os valores já
+convertidos, atualizando a tela a cada meio segundo. Ele usa o
+[mapa do protocolo](modelos.md#protocolo-carrier-ecosplit-barramento-do-controlador) e também nunca transmite.
+
+```powershell
+py tools\monitor_ecosplit.py COM6
+py tools\monitor_ecosplit.py COM6 --csv leituras.csv
+```
+
+- Mostra ligado, modo, temperatura desejada e ambiente, as temperaturas da unidade externa e as duas correntes.
+  Os valores que ainda são hipótese aparecem marcados.
+- Mostra os quadros brutos do controlador e da evaporadora, com os bytes que mudaram desde o início em amarelo. Isso
+  ajuda a achar o que ainda falta, como o código de erro.
+- Descarta quadros com o XOR ou a soma errados.
+- Com `--csv`, grava uma linha por ciclo, separada por ponto e vírgula e com vírgula decimal, para abrir no Excel.
+
 ## Pendências
 
 - Fotos do controlador por trás e da régua de bornes da evaporadora, para achar o modelo do controlador e da placa
-- Saber se os dois aparelhos estão no mesmo cabo
-- Saber por que só um dos aparelhos mostra a corrente dos compressores: controlador, placa ou versão diferente.
-  Vale capturar os dois aparelhos, porque os protocolos podem ter diferenças
+- Saber se os dois aparelhos estão no mesmo cabo. A primeira captura indica que não: só um controlador (`C1`)
+  responde no barramento.
+- Capturar o outro aparelho com o compressor funcionando, anotando a frequência do compressor, a corrente do
+  compressor, a temperatura do dissipador e a tensão do barramento DC no mesmo instante em que aparecem na tela.
+  Os candidatos neste aparelho são os bytes 12, 20, 21 e 22 do quadro da evaporadora
+- Saber o que as correntes 1 e 2 medem. Na captura, a corrente 2 teve um pico de partida típico de compressor fixo
 - Medição opcional em tensão alternada entre Y/A e G/B com o aparelho ligado: qualquer valor acima de zero confirma
   que há dados passando
