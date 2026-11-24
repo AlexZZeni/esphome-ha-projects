@@ -22,6 +22,8 @@ import serial
 
 BAUD_RATES = [1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]
 PARITIES = {"N": serial.PARITY_NONE, "E": serial.PARITY_EVEN, "O": serial.PARITY_ODD}
+# Random bytes average 4.5 bit transitions; bytes read too fast stay near 1 to 2.
+MIN_TRANSITIONS = 2.5
 
 
 def open_port(port, baud, parity="N", stopbits=1):
@@ -85,11 +87,21 @@ def to_hex(data):
     return " ".join(f"{b:02X}" for b in data)
 
 
+def bit_transitions(byte):
+    # Start bit, 8 data bits LSB first, stop bit, as they travel on the wire.
+    bits = [0] + [(byte >> i) & 1 for i in range(8)] + [1]
+    return sum(a != b for a, b in zip(bits, bits[1:]))
+
+
 def frame_stats(frames):
     counts = Counter(data for _, data in frames)
     repeated = sum(n for n in counts.values() if n > 1)
+    all_bytes = b"".join(data for _, data in frames)
     return {
-        "bytes": sum(len(data) for _, data in frames),
+        # Read too fast, each real bit becomes several equal bits, so bytes
+        # like 00, 80, E0 and F8 with one or two transitions dominate.
+        "transitions": sum(map(bit_transitions, all_bytes)) / len(all_bytes) if all_bytes else 0.0,
+        "bytes": len(all_bytes),
         "frames": len(frames),
         "distinct": len(counts),
         "repeat": repeated / len(frames) if frames else 0.0,
@@ -116,8 +128,10 @@ def scan(args):
             frames = list(read_frames(ser, FrameSplitter(gap), seconds=args.segundos))
             stats = frame_stats(frames)
             results.append((baud, stats))
+            too_fast = stats["bytes"] and stats["transitions"] < MIN_TRANSITIONS
             print(f"{baud:>6} baud: {stats['bytes']:>6} bytes, {stats['frames']:>4} quadros, "
-                  f"{stats['distinct']:>4} diferentes, {stats['repeat']:>4.0%} repetidos")
+                  f"{stats['distinct']:>4} diferentes, {stats['repeat']:>4.0%} repetidos, "
+                  f"{stats['transitions']:.1f} transições/byte{'  (rápida demais)' if too_fast else ''}")
     finally:
         ser.close()
 
@@ -126,7 +140,8 @@ def scan(args):
         for data, n in stats["common"]:
             print(f"{baud:>6}  {n:>4}x  [{len(data):>3}] {to_hex(data[:24])}{' ...' if len(data) > 24 else ''}")
 
-    candidates = [(s["repeat"], s["frames"], b) for b, s in results if s["frames"] >= 5]
+    candidates = [(s["repeat"], s["frames"], b) for b, s in results
+                  if s["frames"] >= 5 and s["transitions"] >= MIN_TRANSITIONS]
     if not candidates:
         print("\nNenhuma velocidade recebeu quadros suficientes. Confira A, B e GND e se o barramento tem tráfego.")
         return
