@@ -9,14 +9,14 @@ Dispositivos feitos com ESP32 e [ESPHome](https://esphome.io/) para controlar a 
 | Ar-condicionado por infravermelho, com sensor de temperatura e humidade | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
 | Ventilador de teto com luz por infravermelho | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ventilador.md](docs/ventilador.md) |
 | Ar-condicionado Midea com controle Carrier (protocolo Coolix), com sensor de temperatura e humidade | [`esp32-squad-1.yaml`](esp32-squad-1.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
-| Ar-condicionado central Carrier Ecosplit pelo barramento RS-485 do controlador (em andamento) | — | [docs/carrier-ecosplit.md](docs/carrier-ecosplit.md) |
+| Ar-condicionado central Carrier Ecosplit pelo barramento RS-485 do controlador, só leitura (em andamento) | [`evap-1.yaml`](evap-1.yaml) e [`evap-2.yaml`](evap-2.yaml) | [docs/carrier-ecosplit.md](docs/carrier-ecosplit.md) |
 
 ## Estrutura
 
 ```
 ar-condicionado.yaml    uma placa = um arquivo, que inclui os pacotes de que ela precisa
 packages/               partes reutilizáveis: rede, IR, sensores e aparelhos
-components/             componentes próprios do ESPHome, como a plataforma mirage
+components/             componentes próprios do ESPHome, como a plataforma mirage e a leitura do ecosplit
 docs/                   guia de cada projeto, diagramas e modelos testados
 tools/                  scripts para usar no PC, como a captura do barramento RS-485
 secrets.yaml            senhas e chaves usadas por todas as placas (fica fora do git)
@@ -30,6 +30,7 @@ secrets.yaml            senhas e chaves usadas por todas as placas (fica fora do
 | [`ar-ir.yaml`](packages/ar-ir.yaml) | Ar-condicionado por IR. Precisa do `ir.yaml`, de um sensor com o id `temperatura_ambiente` e da substituição `ac_platform` |
 | [`mirage-display.yaml`](packages/mirage-display.yaml) | Botão que acende ou apaga o display do ar. Só para `ac_platform: mirage` |
 | [`ventilador.yaml`](packages/ventilador.yaml) | Ventilador de teto com luz por IR. Precisa do `ir.yaml` |
+| [`ecosplit.yaml`](packages/ecosplit.yaml) | Leitura do Carrier Ecosplit pelo barramento RS-485, com o módulo no GPIO16. Só escuta |
 
 ## Preparar o ambiente
 

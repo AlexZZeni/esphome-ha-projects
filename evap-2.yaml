@@ -1,0 +1,16 @@
+esphome:
+  name: evap-2
+  friendly_name: Evaporadora 2
+
+esp32:
+  board: esp32dev
+
+# Componentes deste repositório, como a leitura do Carrier Ecosplit.
+external_components:
+  - source:
+      type: local
+      path: components
+
+packages:
+  base: !include packages/base.yaml
+  ecosplit: !include packages/ecosplit.yaml

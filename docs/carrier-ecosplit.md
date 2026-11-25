@@ -1,7 +1,8 @@
 # Ar-condicionado central Carrier Ecosplit pelo barramento do controlador
 
-> **Em andamento.** Ainda não há placa nem pacote. Este guia registra o que já foi descoberto e o plano para
-> controlar os aparelhos pelo Home Assistant.
+> **Em andamento.** As placas [`evap-1.yaml`](../evap-1.yaml) e [`evap-2.yaml`](../evap-2.yaml) leem os aparelhos e
+> mostram os valores no Home Assistant, ainda sem controlar. Elas compilam, mas ainda não foram testadas no
+> barramento. Este guia registra o que já foi descoberto e o plano para controlar os aparelhos.
 
 O objetivo é controlar dois aparelhos centrais Carrier Ecosplit pelo Home Assistant: modo, temperatura,
 ventilação e as resistências de aquecimento. Os aparelhos não têm controle infravermelho, então a ideia é ligar um
@@ -218,6 +219,59 @@ py tools\monitor_ecosplit.py COM6 --csv leituras.csv
   ajuda a achar o que ainda falta, como o código de erro.
 - Descarta quadros com o XOR ou a soma errados.
 - Com `--csv`, grava uma linha por ciclo, separada por ponto e vírgula e com vírgula decimal, para abrir no Excel.
+
+## Leitura pelo ESP32
+
+Cada aparelho tem a sua placa: [`evap-1.yaml`](../evap-1.yaml) e [`evap-2.yaml`](../evap-2.yaml). As duas usam o
+pacote [`packages/ecosplit.yaml`](../packages/ecosplit.yaml) e o componente
+[`components/ecosplit`](../components/ecosplit), que decodifica os quadros com o
+[mapa do protocolo](modelos.md#protocolo-carrier-ecosplit-barramento-do-controlador).
+
+A placa só escuta, por dois motivos: o UART não tem pino de TX, e o DE e o RE do módulo ficam no GND, o que deixa o
+transmissor dele sempre desligado.
+
+### Peças
+
+- ESP32 DevKit (`esp32dev`), com fonte externa de 5 V
+- Módulo RS-485 de **3,3 V** com os pinos DE e RE expostos, como os de MAX3485 ou SP3485
+
+Evite estes módulos:
+
+- **MAX485 alimentado em 5 V**, o módulo azul mais comum. A saída RO dele fica em 5 V, e o GPIO do ESP32 não aguenta
+  5 V.
+- **Módulos com direção automática**, que só têm os pinos RX e TX, sem DE e RE. Eles ligam o transmissor sozinhos
+  pelo pino TX, e sem esse controle o ESP32 pode acabar mexendo no barramento.
+
+### Ligações
+
+| Módulo RS-485 | Liga em |
+|---|---|
+| VCC | 3V3 do ESP32 |
+| GND | GND do ESP32 e GND do cabo do controlador |
+| RO | GPIO16 do ESP32 |
+| DI | Sem ligação |
+| DE e RE | GND |
+| A | Y/A do cabo do controlador |
+| B | G/B do cabo do controlador |
+
+- O fio de 12V do cabo do controlador fica sem ligação.
+- O GND precisa ser comum entre a fonte do ESP32, o módulo e o cabo do controlador.
+- Muitos módulos têm um resistor de terminação de 120 Ω entre A e B (marcado "121"). O barramento já tem a sua
+  terminação, e mais uma pode enfraquecer o sinal entre o controlador e a evaporadora. Com o módulo ligado, meça a
+  tensão entre A e B com o aparelho funcionando. Se ela cair abaixo de cerca de 1 V, retire o resistor.
+- Em placas com PSRAM (ESP32-WROVER), o GPIO16 é usado pela memória. Nesse caso, escolha outro pino com a
+  substituição `ecosplit_rx_pin` no YAML da placa.
+
+### Entidades no Home Assistant
+
+- **Valores:** ligado, modo, temperatura desejada e ambiente, externa, condensador, sucção, descarga 1 e 2,
+  dissipador, correntes 1 e 2, frequência e corrente do inverter e tensão do barramento DC.
+- **Comunicação:** fica desligada quando a placa passa 5 segundos sem receber um quadro válido. Nesse caso, os
+  valores ficam como indisponíveis.
+- **Diagnóstico:** os bytes ainda não identificados, como "Evaporadora byte 21", e os bits do byte 17. Eles ficam no
+  histórico do Home Assistant para ajudar a descobrir o que são.
+
+Cada valor é publicado só quando muda, para não encher o histórico a cada ciclo de 656 ms.
 
 ## Pendências
 

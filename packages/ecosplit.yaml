@@ -1,0 +1,93 @@
+# Carrier Ecosplit pelo barramento RS-485 do controlador, só escutando. Guia em docs/carrier-ecosplit.md.
+# O UART não tem pino de TX, e o DE e o RE do módulo RS-485 ficam ligados no GND: a placa não consegue transmitir.
+substitutions:
+  ecosplit_rx_pin: GPIO16
+
+uart:
+  id: ecosplit_bus
+  rx_pin: ${ecosplit_rx_pin}
+  baud_rate: 9600
+
+ecosplit:
+  id: ecosplit_hub
+  uart_id: ecosplit_bus
+
+sensor:
+  - platform: ecosplit
+    target_temperature:
+      name: Temperatura desejada
+    room_temperature:
+      name: Temperatura ambiente
+    outdoor_temperature:
+      name: Temperatura externa
+    condenser_temperature:
+      name: Temperatura do condensador
+    suction_temperature:
+      name: Temperatura de sucção
+    discharge_1_temperature:
+      name: Temperatura de descarga 1
+    discharge_2_temperature:
+      name: Temperatura de descarga 2
+    heatsink_temperature:
+      name: Temperatura do dissipador
+    compressor_1_current:
+      name: Corrente 1
+    compressor_2_current:
+      name: Corrente 2
+    inverter_frequency:
+      name: Frequência do inverter
+    inverter_current:
+      name: Corrente do inverter
+    dc_bus_voltage:
+      name: Tensão do barramento DC
+    # Bytes ainda não identificados (docs/modelos.md). Ficam como diagnóstico para acompanhar no histórico.
+    controller_byte_8:
+      name: Controlador byte 8
+    controller_byte_9:
+      name: Controlador byte 9
+    unit_byte_5:
+      name: Evaporadora byte 5
+    unit_byte_6:
+      name: Evaporadora byte 6
+    unit_byte_13:
+      name: Evaporadora byte 13
+    unit_byte_16:
+      name: Evaporadora byte 16
+    unit_byte_17:
+      name: Evaporadora byte 17
+    unit_byte_21:
+      name: Evaporadora byte 21
+    unit_byte_22:
+      name: Evaporadora byte 22
+    unit_byte_23:
+      name: Evaporadora byte 23
+    unit_byte_24:
+      name: Evaporadora byte 24
+    unit_byte_25:
+      name: Evaporadora byte 25
+    unit_byte_26:
+      name: Evaporadora byte 26
+    unit_byte_27:
+      name: Evaporadora byte 27
+    unit_byte_28:
+      name: Evaporadora byte 28
+
+binary_sensor:
+  - platform: ecosplit
+    online:
+      name: Comunicação
+    power:
+      name: Ligado
+    evaporator_fan:
+      name: Ventilador da evaporadora
+    unit_state_bit_01:
+      name: Evaporadora byte 17 bit 01
+    unit_state_bit_02:
+      name: Evaporadora byte 17 bit 02
+    unit_state_bit_04:
+      name: Evaporadora byte 17 bit 04
+
+text_sensor:
+  - platform: ecosplit
+    mode:
+      name: Modo
