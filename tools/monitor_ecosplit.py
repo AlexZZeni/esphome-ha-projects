@@ -36,12 +36,14 @@ FIELDS = [
     ("descarga2", "Descarga 2", "°C", True, None),
     ("corrente1", "Corrente 1", "A", True, None),
     ("corrente2", "Corrente 2", "A", True, None),
-    ("dissipador", "Dissipador", "°C", False, 12),
-    ("barramento_dc", "Barramento DC", "V", False, 20),
-    ("frequencia", "Frequência do compressor", "Hz", False, 21),
-    ("frequencia_meia", "Frequência, se em 0,5 Hz", "Hz", False, 21),
-    ("frequencia_pedida", "Frequência pedida", "Hz", False, 22),
-    ("byte13", "Byte 13 (sempre 19?)", "", False, 13),
+    ("dissipador", "Dissipador", "°C", True, None),
+    ("barramento_dc", "Barramento DC", "V", True, None),
+    ("frequencia", "Frequência do inverter", "Hz", True, None),
+    ("corrente_inverter", "Corrente do inverter", "A", True, None),
+    ("byte13", "Byte 13 (configuração?)", "", False, 13),
+    ("byte21", "Byte 21 (vent. externo?)", "", False, 21),
+    ("byte22", "Byte 22", "", False, 22),
+    ("byte23", "Byte 23 (inverter?)", "", False, 23),
     ("byte26", "Byte 26 (contador?)", "", False, 26),
     ("estado", "Estado", "", False, 17),
 ]
@@ -52,7 +54,7 @@ STATE_BITS = [
     (0x08, "ventilador"),
     (0x04, "bit 04"),
     (0x01, "bit 01"),
-    (0x02, "bit 02 (compressor 2?)"),
+    (0x02, "bit 02"),
 ]
 
 
@@ -119,11 +121,13 @@ def decode_unit(f):
         "corrente1": f[14] * 0.25,
         "corrente2": f[15] * 0.25,
         "estado": describe_state(f[17]),
-        "barramento_dc": f[20] * 3,
-        "frequencia": f[21],
-        "frequencia_meia": f[21] / 2,
-        "frequencia_pedida": f[22],
+        "barramento_dc": f[20] * 4,
+        "frequencia": f[18],
+        "corrente_inverter": f[19] * 0.25,
         "byte13": f[13],
+        "byte21": f[21],
+        "byte22": f[22],
+        "byte23": f[23],
         "byte26": f[26],
     }
 

@@ -111,7 +111,8 @@ Exemplo: `9A 56 C1 FE 0D 19 01 01 00 00 03 E4 BE`, com 25 °C desejados, 25,7 °
 
 ### Quadro da evaporadora (`01` → `FE`, 31 bytes)
 
-Exemplo com o compressor 2 funcionando em frio: `9A 56 01 FE 1F 30 00 4F 54 4E 5B 56 52 13 00 1C 06 0F 00 02 BC 98 5A
+Os dois aparelhos usam o mesmo quadro. O byte 5 é `30` no primeiro e `20` no segundo, talvez uma identificação. Exemplo
+do primeiro aparelho com o compressor 2 funcionando em frio: `9A 56 01 FE 1F 30 00 4F 54 4E 5B 56 52 13 00 1C 06 0F 00 02 BC 98 5A
 00 0C 01 07 00 00 66 A0`.
 
 As temperaturas vêm em °C + 55, um byte cada: `4E` = 78 − 55 = 23 °C. As correntes vêm em passos de 0,25 A. As duas
@@ -134,15 +135,26 @@ codificações foram conferidas com os valores da tela no fim de uma captura com
 | 9 | Desceu de `4F` para `4C` com o compressor funcionando | **Confirmado:** sucção, °C + 55 |
 | 10 | Subiu de `50` para `60` com o compressor funcionando | **Confirmado:** descarga 1, °C + 55 |
 | 11 | Subiu de `50` para `58` com o compressor funcionando | **Confirmado:** descarga 2, °C + 55 |
-| 12 | `51` a `53` (26 a 28 °C) | Provável: dissipador do inverter, °C + 55. O valor bate com o que o controlador do outro aparelho mostra. Falta ver ele subir com o inverter funcionando por mais tempo |
-| 13 | `13`, fixo em todas as capturas, inclusive com a externa a 25 °C | Não é a externa. Talvez configuração |
+| 12 | `51` a `56` (26 a 31 °C) | **Confirmado:** dissipador do inverter, °C + 55. Conferido no mesmo instante com a tela do controlador do outro aparelho |
+| 13 | `13` (19) no primeiro aparelho e `23` (35) no segundo, fixo, ligado ou desligado | Não é a externa nem a frequência. Provavelmente configuração |
 | 14 | `00` | **Confirmado:** corrente do compressor 1, em passos de 0,25 A |
-| 15 | `00` desligado. Pulou para `42` na partida e ficou entre `17` e `1C` | **Confirmado:** corrente do compressor 2, em passos de 0,25 A. Conferido com 7,0 A (`1C`) e 6,7 A (`1B`). O `42` = 16,5 A é o pico da partida |
+| 15 | `00` desligado. Pulou para `42` na partida e ficou entre `17` e `1C` | **Confirmado:** corrente do compressor 2, em passos de 0,25 A. Conferido com 7,0 A (`1C`) e 6,7 A (`1B`). O `42` = 16,5 A é o pico da partida, típico do compressor fixo |
 | 17 | `00` desligado, `08` ao ligar, `0C` 70 s depois de passar para frio, `0D` e `0F` antes da partida do compressor | Bits de estado. `08` = ventilador da evaporadora. Os outros ainda não se sabe quais são |
-| 20 | `BA` a `C0`, oscilando em torno de `BD`, também com o aparelho desligado | Provável: tensão do barramento DC do inverter, em passos de 3 V. `BD` = 189 × 3 = 567 V. O controlador do outro aparelho mostrava 572 V |
-| 21 | Subiu de `00` até `9E` em 35 s, depois do bit `04` do byte 17, e ficou entre `96` e `9B` | Talvez a frequência do compressor inverter, ou a velocidade do ventilador da condensadora |
-| 22 | `00`, depois `14` 20 s depois de passar para frio, depois `5A` | Desconhecido. Talvez a frequência pedida ao inverter |
+| 18 | `00` desligado. No segundo aparelho, subiu de `1F` para `24` com o inverter funcionando. No primeiro, ficou em `00` o tempo todo | **Confirmado no segundo aparelho:** frequência do compressor inverter, em Hz. A tela mostrava cerca de 35 Hz |
+| 19 | `02` desligado. No segundo aparelho, entre `14` e `16` com o inverter funcionando. No primeiro, ficou em `02` o tempo todo | **Confirmado no segundo aparelho:** corrente do compressor inverter, em passos de 0,25 A. `16` = 5,5 A, como na tela |
+| 20 | No segundo aparelho: `8F` desligado, `84` com o compressor funcionando. No primeiro: `BA` a `C0` o tempo todo, ligado ou desligado | **Confirmado no segundo aparelho:** tensão do barramento DC do inverter, em passos de 4 V. `8F` = 143 × 4 = 572 V e `84` = 132 × 4 = 528 V, contra 572 V e 524 V na tela. No primeiro aparelho, o mesmo cálculo daria ~756 V sem variação, o que não é plausível. A conferir |
+| 21 | Subiu de `00` até `9E` em 35 s, depois do bit `04` do byte 17, e ficou entre `96` e `9B`. O mesmo nos dois aparelhos | Não é o inverter. Talvez a velocidade do ventilador da condensadora |
+| 22 | `00`, depois `14` 20 s depois de passar para frio, depois `5A`. O mesmo nos dois aparelhos | Desconhecido |
+| 23 | `00` desligado e `2E` (46) com o inverter funcionando, no segundo aparelho. `00` o tempo todo no primeiro | Algum dado do inverter |
 | 26 | Muda sozinho de 1 em 1, às vezes subindo e às vezes descendo, de `00` a `09` | Desconhecido |
+
+Exemplo do segundo aparelho com os dois compressores funcionando, o inverter a 36 Hz e 5,5 A:
+`9A 56 01 FE 1F 20 00 4D 52 4B 5A 57 52 23 00 1C 06 0E 24 16 84 99 5A 2E 0C 01 03 00 00 65 C2`.
+
+No primeiro aparelho, os dados do inverter não mudaram durante as capturas, nem com o compressor funcionando: a
+frequência (byte 18) ficou em 0, a corrente (byte 19) em 0,5 A, que é o valor do segundo aparelho desligado, e o
+barramento DC (byte 20) em ~756 V. Só o compressor fixo funcionou. Isso pode indicar um problema no inverter desse
+aparelho, e talvez explique por que o controlador dele não mostra as leituras do inverter.
 
 Os outros bytes não mudaram em nenhuma captura. Ainda faltam o código de erro e a ventilação. O
 [`tools/monitor_ecosplit.py`](../tools/monitor_ecosplit.py) mostra esses valores ao vivo.

@@ -224,9 +224,8 @@ py tools\monitor_ecosplit.py COM6 --csv leituras.csv
 - Fotos do controlador por trás e da régua de bornes da evaporadora, para achar o modelo do controlador e da placa
 - Saber se os dois aparelhos estão no mesmo cabo. A primeira captura indica que não: só um controlador (`C1`)
   responde no barramento.
-- Capturar o outro aparelho com o compressor funcionando, anotando a frequência do compressor, a corrente do
-  compressor, a temperatura do dissipador e a tensão do barramento DC no mesmo instante em que aparecem na tela.
-  Os candidatos neste aparelho são os bytes 12, 20, 21 e 22 do quadro da evaporadora
-- Saber o que as correntes 1 e 2 medem. Na captura, a corrente 2 teve um pico de partida típico de compressor fixo
+- Verificar o inverter do primeiro aparelho. Nas capturas, só o compressor fixo funcionou, e a frequência, a corrente
+  e o barramento DC do inverter ficaram parados. Ver o código de erro e, se for o caso, chamar um técnico
+- Saber o que a corrente 1 mede. A corrente 2 é do compressor fixo, e a do inverter vem em outro byte
 - Medição opcional em tensão alternada entre Y/A e G/B com o aparelho ligado: qualquer valor acima de zero confirma
   que há dados passando
