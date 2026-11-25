@@ -54,7 +54,7 @@ def _raw():
     )
 
 
-# Chave no YAML: (quadro, byte, conversão, esquema). Mapa em docs/modelos.md.
+# Chave no YAML: (quadro, byte, conversão, esquema). Mapa em docs/carrier-ecosplit/protocolo.md.
 SENSORS = {
     "target_temperature": (SOURCE_CONTROLLER, 5, DECODE_LOW_7, _temperature()),
     "room_temperature": (SOURCE_CONTROLLER, 6, DECODE_TENTHS_16, _temperature(1)),

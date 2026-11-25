@@ -5,13 +5,13 @@ duas entidades: um `fan` com 3 velocidades e uma `light` com brilho e temperatur
 o controle original, e o Home Assistant acompanha o que for feito por ele.
 
 Não precisa de peça nova. O pacote usa o mesmo emissor e o mesmo receptor do
-[ar-condicionado](ar-condicionado.md#ligações), e uma placa só controla os dois aparelhos. A condição é que o LED IR
+[ar-condicionado](../ar-condicionado/README.md#ligações), e uma placa só controla os dois aparelhos. A condição é que o LED IR
 alcance o receptor dos dois. Se não alcançar, aponte o LED para um ponto entre eles ou para o teto, ou ligue um
 segundo LED em paralelo.
 
 ## Como usar
 
-O pacote é o [`packages/ventilador.yaml`](../packages/ventilador.yaml). Ele precisa do `ir.yaml` e entra na lista de
+O pacote é o [`packages/ventilador.yaml`](../../packages/ventilador.yaml). Ele precisa do `ir.yaml` e entra na lista de
 pacotes da placa:
 
 ```yaml
@@ -69,7 +69,7 @@ Protocolo NEC, endereço `0xFF00`. Nos logs e no YAML, o ESPHome mostra o comand
 | Velocidade 3 | `0x5A` | `0xA55A` | Liga o ventilador |
 
 Para capturar os códigos de outro controle, siga os passos de
-[Descobrir o protocolo](ar-condicionado.md#descobrir-o-protocolo). Fique a menos de 1 metro do receptor, com o
+[Descobrir o protocolo](../ar-condicionado/README.md#descobrir-o-protocolo). Fique a menos de 1 metro do receptor, com o
 controle apontado de frente. De mais longe, boa parte dos toques chega com ruído e não é decodificada.
 
 ## Limitações

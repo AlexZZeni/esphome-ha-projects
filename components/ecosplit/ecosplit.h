@@ -16,7 +16,7 @@ enum Source : uint8_t {
   SOURCE_UNIT = 1,        // 01 -> FE, 31 bytes: leituras da placa da evaporadora
 };
 
-// Conversão do byte (ou dos bytes) para o valor publicado. Mapa em docs/modelos.md.
+// Conversão do byte (ou dos bytes) para o valor publicado. Mapa em docs/carrier-ecosplit/protocolo.md.
 enum Decode : uint8_t {
   DECODE_RAW = 0,          // byte como está
   DECODE_TEMPERATURE = 1,  // °C + 55

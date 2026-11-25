@@ -6,10 +6,10 @@ Dispositivos feitos com ESP32 e [ESPHome](https://esphome.io/) para controlar a 
 
 | Projeto | Placa | Guia |
 |---|---|---|
-| Ar-condicionado por infravermelho, com sensor de temperatura e humidade | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
-| Ventilador de teto com luz por infravermelho | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ventilador.md](docs/ventilador.md) |
-| Ar-condicionado Midea com controle Carrier (protocolo Coolix), com sensor de temperatura e humidade | [`esp32-squad-1.yaml`](esp32-squad-1.yaml) | [docs/ar-condicionado.md](docs/ar-condicionado.md) |
-| Ar-condicionado central Carrier Ecosplit pelo barramento RS-485 do controlador, só leitura (em andamento) | [`evap-1.yaml`](evap-1.yaml) e [`evap-2.yaml`](evap-2.yaml) | [docs/carrier-ecosplit.md](docs/carrier-ecosplit.md) |
+| Ar-condicionado por infravermelho, com sensor de temperatura e humidade | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ar-condicionado](docs/ar-condicionado/README.md) |
+| Ventilador de teto com luz por infravermelho | [`ar-condicionado.yaml`](ar-condicionado.yaml) | [docs/ventilador](docs/ventilador/README.md) |
+| Ar-condicionado Midea com controle Carrier (protocolo Coolix), com sensor de temperatura e humidade | [`esp32-squad-1.yaml`](esp32-squad-1.yaml) | [docs/ar-condicionado](docs/ar-condicionado/README.md) |
+| Ar-condicionado central Carrier Ecosplit pelo barramento RS-485 do controlador, só leitura, com sensor de temperatura e humidade (em andamento) | [`evap-1.yaml`](evap-1.yaml) e [`evap-2.yaml`](evap-2.yaml) | [docs/carrier-ecosplit](docs/carrier-ecosplit/README.md) |
 
 ## Estrutura
 
@@ -17,7 +17,7 @@ Dispositivos feitos com ESP32 e [ESPHome](https://esphome.io/) para controlar a 
 ar-condicionado.yaml    uma placa = um arquivo, que inclui os pacotes de que ela precisa
 packages/               partes reutilizáveis: rede, IR, sensores e aparelhos
 components/             componentes próprios do ESPHome, como a plataforma mirage e a leitura do ecosplit
-docs/                   guia de cada projeto, diagramas e modelos testados
+docs/<projeto>/         guia (README.md), diagramas e mapas de protocolo de cada projeto
 tools/                  scripts para usar no PC, como a captura do barramento RS-485
 secrets.yaml            senhas e chaves usadas por todas as placas (fica fora do git)
 ```
@@ -67,4 +67,5 @@ usuário ao grupo `dialout` e entre na sessão de novo. Depois disso, as gravaç
 2. Dê à placa um `name` que nenhuma outra use. Duas placas com o mesmo nome na rede confundem o Home Assistant.
 3. Coloque o que for específico de um aparelho em um pacote novo em `packages/`, para que outra placa possa
    reaproveitar.
-4. Escreva o guia em `docs/` e acrescente o projeto à tabela acima.
+4. Crie uma pasta em `docs/` com o nome do projeto, escreva o guia no `README.md` dela e acrescente o projeto à
+   tabela acima.

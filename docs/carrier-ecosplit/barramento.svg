@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="500" viewBox="0 0 1040 500" role="img" aria-label="O controlador da parede, de endereço C1, e a placa da evaporadora, de endereço 01, ficam nas pontas do cabo de 4 fios: 12V, GND, Y/A e G/B. O ESP32 com o módulo RS-485 se liga no meio do cabo, só no Y/A, no G/B e no GND, e só escuta. A cada 656 ms passam quatro quadros: a placa consulta o controlador; o controlador responde com o modo, a temperatura desejada e a ambiente; a placa consulta o endereço F1, que não responde; e a placa manda para todos as temperaturas, as correntes e os dados do inverter. Cada quadro tem 9A 56, origem, destino, tamanho, dados, XOR e soma.">
+<style>
+svg { color: #1b2327; background: #fbfcfc; }
+svg text { font: 12px "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: currentColor; }
+svg .mono { font: 12px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; }
+svg .b { font-weight: 600; }
+svg .title { font-size: 14px; font-weight: 600; }
+svg .section { font-size: 15px; font-weight: 600; }
+svg .small { font-size: 11px; fill: #55636a; }
+svg .mid { text-anchor: middle; }
+svg .end { text-anchor: end; }
+svg .box { fill: #edf1f0; stroke: #b8c4c6; stroke-width: 1.5; }
+svg .esp { fill: #123f3a; }
+svg .on-dark { fill: #e9f4f0; }
+svg .on-dark-sub { font-size: 11px; fill: #9dbdb4; }
+svg .w { fill: none; stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+svg .w12 { stroke: #cf2f2f; } svg .t12 { fill: #cf2f2f; }
+svg .wgnd { stroke: #20282c; } svg .tgnd { fill: #20282c; }
+svg .wa { stroke: #b5367a; } svg .ta { fill: #b5367a; }
+svg .wb { stroke: #2a8fa3; } svg .tb { fill: #2a8fa3; }
+svg .wt { font-weight: 600; }
+svg .frame { stroke-width: 1.5; }
+svg .fc { fill: #f6ecf2; stroke: #b5367a; }
+svg .fu { fill: #e8f3f5; stroke: #2a8fa3; }
+svg .fx { fill: #f2f4f4; stroke: #b8c4c6; stroke-dasharray: 5 4; }
+svg .arrow { fill: none; stroke: #55636a; stroke-width: 1.6; }
+svg .cell { fill: #fbfcfc; stroke: #b8c4c6; stroke-width: 1.2; }
+svg .cell-h { fill: #edf1f0; stroke: #b8c4c6; stroke-width: 1.2; }
+</style>
+<rect width="1040" height="500" fill="#fbfcfc"/>
+<defs>
+  <marker id="seta" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0 0L8 4L0 8z" fill="#55636a"></path>
+  </marker>
+</defs>
+
+<!-- Pontas do cabo -->
+<rect x="40" y="40" width="210" height="110" rx="4" class="box"></rect>
+<text x="56" y="70" class="title">Controlador da parede</text>
+<text x="56" y="90" class="mono b">endereço C1</text>
+<text x="56" y="110" class="small">manda o modo e a temperatura</text>
+<text x="56" y="126" class="small">desejada e mede a ambiente</text>
+
+<rect x="790" y="40" width="210" height="110" rx="4" class="box"></rect>
+<text x="806" y="70" class="title">Placa da evaporadora</text>
+<text x="806" y="90" class="mono b">endereço 01</text>
+<text x="806" y="110" class="small">comanda o barramento e manda</text>
+<text x="806" y="126" class="small">as leituras do aparelho</text>
+
+<!-- Cabo de 4 fios -->
+<path class="w w12" d="M250 62H790"></path>
+<path class="w wgnd" d="M250 84H790"></path>
+<path class="w wa" d="M250 106H472a8 8 0 0 1 16 0H790"></path>
+<path class="w wb" d="M250 128H472a8 8 0 0 1 16 0H512a8 8 0 0 1 16 0H790"></path>
+<text x="320" y="57" class="wt t12">12V</text>
+<text x="320" y="79" class="wt tgnd">GND</text>
+<text x="320" y="101" class="wt ta">Y/A</text>
+<text x="320" y="123" class="wt tb">G/B</text>
+<text x="700" y="57" class="small end">o 12V alimenta o controlador</text>
+
+<!-- ESP32 no meio do cabo -->
+<path class="w wgnd" d="M480 84V190"></path>
+<path class="w wa" d="M520 106V190"></path>
+<path class="w wb" d="M560 128V190"></path>
+<circle cx="480" cy="84" r="5" class="tgnd"></circle>
+<circle cx="520" cy="106" r="5" class="ta"></circle>
+<circle cx="560" cy="128" r="5" class="tb"></circle>
+<rect x="420" y="190" width="200" height="66" rx="6" class="esp"></rect>
+<text x="520" y="216" class="mid on-dark b">ESP32 + módulo RS-485</text>
+<text x="520" y="236" class="mid on-dark-sub">só escuta, sem pino de TX</text>
+<text x="640" y="215" class="small">liga em paralelo, sem</text>
+<text x="640" y="231" class="small">desligar o controlador</text>
+
+<!-- Ciclo -->
+<text x="40" y="296" class="section">A cada 656 ms passam 4 quadros, sempre nesta ordem</text>
+
+<rect x="40" y="312" width="220" height="74" rx="4" class="frame fu"></rect>
+<text x="54" y="334" class="mono b">1. 01 → C1</text>
+<text x="54" y="354">consulta o controlador</text>
+<text x="54" y="372" class="small">9 bytes</text>
+
+<rect x="290" y="312" width="220" height="74" rx="4" class="frame fc"></rect>
+<text x="304" y="334" class="mono b">2. C1 → FE</text>
+<text x="304" y="354">ligado, modo, temperatura</text>
+<text x="304" y="372" class="small">desejada e ambiente. 13 bytes</text>
+
+<rect x="540" y="312" width="220" height="74" rx="4" class="frame fx"></rect>
+<text x="554" y="334" class="mono b">3. 01 → F1</text>
+<text x="554" y="354">consulta, ninguém responde</text>
+<text x="554" y="372" class="small">9 bytes</text>
+
+<rect x="790" y="312" width="210" height="74" rx="4" class="frame fu"></rect>
+<text x="804" y="334" class="mono b">4. 01 → FE</text>
+<text x="804" y="354">temperaturas, correntes</text>
+<text x="804" y="372" class="small">e inverter. 31 bytes</text>
+
+<path class="arrow" d="M262 349H286" marker-end="url(#seta)"></path>
+<path class="arrow" d="M512 349H536" marker-end="url(#seta)"></path>
+<path class="arrow" d="M762 349H786" marker-end="url(#seta)"></path>
+<text x="40" y="404" class="small">FE = todos. Os quadros em azul saem da placa da evaporadora, e o em rosa sai do controlador.</text>
+
+<!-- Formato do quadro -->
+<text x="40" y="440" class="section">Formato de cada quadro</text>
+<rect x="40" y="452" width="90" height="32" class="cell-h"></rect><text x="85" y="473" class="mid mono b">9A 56</text>
+<rect x="130" y="452" width="90" height="32" class="cell"></rect><text x="175" y="473" class="mid">origem</text>
+<rect x="220" y="452" width="90" height="32" class="cell"></rect><text x="265" y="473" class="mid">destino</text>
+<rect x="310" y="452" width="90" height="32" class="cell"></rect><text x="355" y="473" class="mid">tamanho</text>
+<rect x="400" y="452" width="360" height="32" class="cell"></rect><text x="580" y="473" class="mid">dados</text>
+<rect x="760" y="452" width="120" height="32" class="cell-h"></rect><text x="820" y="473" class="mid">XOR</text>
+<rect x="880" y="452" width="120" height="32" class="cell-h"></rect><text x="940" y="473" class="mid">soma</text>
+</svg>

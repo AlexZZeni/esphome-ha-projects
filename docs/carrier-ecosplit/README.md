@@ -1,12 +1,155 @@
 # Ar-condicionado central Carrier Ecosplit pelo barramento do controlador
 
-> **Em andamento.** As placas [`evap-1.yaml`](../evap-1.yaml) e [`evap-2.yaml`](../evap-2.yaml) leem os aparelhos e
-> mostram os valores no Home Assistant, ainda sem controlar. Elas compilam, mas ainda não foram testadas no
-> barramento. Este guia registra o que já foi descoberto e o plano para controlar os aparelhos.
+Lê dois aparelhos centrais Carrier Ecosplit pelo Home Assistant, com um ESP32 ligado no cabo do controlador da
+parede. Cada aparelho aparece no Home Assistant com o modo, a temperatura desejada, as temperaturas da unidade
+externa, as correntes dos compressores e os dados do inverter. Um sensor ligado ao ESP32 mede a temperatura e a
+humidade do cômodo.
 
-O objetivo é controlar dois aparelhos centrais Carrier Ecosplit pelo Home Assistant: modo, temperatura,
-ventilação e as resistências de aquecimento. Os aparelhos não têm controle infravermelho, então a ideia é ligar um
-ESP32 no mesmo cabo do controlador com fio da parede.
+> **Em andamento.** As placas só leem o barramento, ainda sem controlar os aparelhos. Elas compilam, mas ainda não
+> foram testadas no barramento. O próximo passo é o controle, descrito no [plano](#plano).
+
+Outros documentos deste projeto:
+
+- [protocolo.md](protocolo.md): o mapa dos quadros do barramento
+- [captura.md](captura.md): como o protocolo foi descoberto e como capturar o barramento pelo PC
+
+## Peças
+
+Para cada aparelho:
+
+- ESP32 DevKit
+- Módulo RS-485 de **3,3 V** com os pinos DE e RE expostos, como os de MAX3485 ou SP3485
+- Fonte de 5 V para o ESP32
+- Sensor de temperatura e humidade SHT31 em plaquinha (veja as
+  [alternativas](../ar-condicionado/README.md#sensor-de-temperatura-e-humidade))
+
+Evite estes módulos RS-485:
+
+- **MAX485 alimentado em 5 V**, o módulo azul mais comum. A saída RO dele fica em 5 V, e o GPIO do ESP32 não aguenta
+  5 V.
+- **Módulos com direção automática**, que só têm os pinos RX e TX, sem DE e RE. Eles ligam o transmissor sozinhos
+  pelo pino TX, e sem esse controle o ESP32 pode acabar mexendo no barramento.
+
+## Ligações
+
+![Esquema de ligação do ESP32 com o módulo RS-485, o cabo do controlador, o sensor SHT31 e a fonte de 5 V](ligacoes.svg)
+
+```
+Módulo RS-485
+  VCC ── 3V3
+  GND ── GND do ESP32 e GND do cabo do controlador
+  RO ── GPIO16 (RX2)
+  DI ── sem ligação
+  DE e RE ── GND (o módulo só recebe)
+  A ── Y/A do cabo do controlador
+  B ── G/B do cabo do controlador
+
+Cabo do controlador
+  12V ── sem ligação
+  GND ── GND
+
+Sensor SHT31
+  VCC ── 3V3
+  GND ── GND
+  SDA ── GPIO21
+  SCL ── GPIO22
+
+Fonte de 5 V
+  + ── VIN (ou o USB)
+  − ── GND
+```
+
+- O módulo entra **em paralelo** com o controlador, sem desligar nenhum fio dele.
+- Mexa só no cabo do controlador. A alimentação do aparelho é de 380 V.
+- O fio de 12V do cabo do controlador fica sem ligação. Isole a ponta dele enquanto mexe: se ele encostar em A ou B,
+  o módulo pode queimar.
+- O GND precisa ser comum entre a fonte do ESP32, o módulo e o cabo do controlador. Sem ele, a referência fica solta
+  e a leitura falha.
+- Muitos módulos têm um resistor de terminação de 120 Ω entre A e B (marcado "121"). O barramento já tem a sua
+  terminação, e mais uma pode enfraquecer o sinal entre o controlador e a evaporadora. Com o módulo ligado, meça a
+  tensão entre A e B com o aparelho funcionando. Se ela cair abaixo de cerca de 1 V, retire o resistor.
+- Em placas com PSRAM (ESP32-WROVER), o GPIO16 é usado pela memória. Nesse caso, escolha outro pino com a
+  substituição `ecosplit_rx_pin` no YAML da placa.
+
+### Como a placa usa o barramento
+
+![O controlador e a placa da evaporadora conversam pelo cabo em ciclos de 656 ms, e o ESP32 só escuta](barramento.svg)
+
+O controlador da parede e a placa da evaporadora conversam pelo cabo em RS-485, a 9600 baud. A cada 656 ms, a
+placa da evaporadora consulta o controlador, que responde com o modo e a temperatura desejada, e depois manda para
+todos as leituras do aparelho. O ESP32 só escuta essa conversa e publica os valores. O mapa completo está em
+[protocolo.md](protocolo.md).
+
+A placa não tem como transmitir, por dois motivos: o UART não tem pino de TX, e o DE e o RE do módulo ficam no GND,
+o que deixa o transmissor dele sempre desligado.
+
+## Sensor de temperatura e humidade
+
+As placas `evap-1.yaml` e `evap-2.yaml` incluem o pacote do SHT31, em
+[`packages/sht31.yaml`](../../packages/sht31.yaml), o mesmo do ar-condicionado por IR. Para usar outro sensor, siga
+as [alternativas](../ar-condicionado/README.md#sensor-de-temperatura-e-humidade) do guia do ar-condicionado.
+
+O controlador da parede também mede a temperatura, e ela aparece como "Temperatura no controlador". O SHT31 mede
+onde o ESP32 estiver, então dá para comparar os dois pontos do cômodo. Mantenha o sensor longe do calor da placa e
+fora do vento da saída de ar.
+
+## Primeira gravação
+
+Prepare o ambiente e o `secrets.yaml` como descrito no [README](../../README.md#preparar-o-ambiente). Depois, na
+raiz do repositório, grave cada placa:
+
+```sh
+.venv/bin/esphome run evap-1.yaml
+.venv/bin/esphome run evap-2.yaml
+```
+
+Com a placa no USB, escolha a porta serial. As próximas gravações podem ser feitas pelo Wi-Fi.
+
+Para conferir a leitura antes de ligar no Home Assistant, olhe o log: `.venv/bin/esphome logs evap-1.yaml`. Em
+poucos segundos, os valores devem aparecer sendo publicados.
+
+## Home Assistant
+
+### Adicionar o dispositivo
+
+1. Em **Configurações → Dispositivos e serviços**, cada placa deve aparecer como descoberta. Clique em
+   **Adicionar**.
+2. Se ela não aparecer, vá em **Adicionar integração → ESPHome** e informe `evap-1.local` (ou `evap-2.local`) ou o
+   IP do ESP32, com a porta `6053`.
+3. Informe o `api_key` do `secrets.yaml` quando for solicitado.
+
+Os dispositivos aparecem como "Evaporadora 1" e "Evaporadora 2".
+
+### Entidades
+
+| Entidade | De onde vem |
+|---|---|
+| Ligado, Modo, Temperatura desejada, Temperatura no controlador | Pedidos do controlador da parede |
+| Temperatura externa, do condensador, de sucção, de descarga 1 e 2 | Sensores da unidade externa |
+| Temperatura do dissipador, Frequência do inverter, Corrente do inverter, Tensão do barramento DC | Inverter |
+| Corrente 1, Corrente 2 | Correntes dos compressores. A corrente 2 é do compressor fixo |
+| Ventilador da evaporadora | Bit de estado da placa da evaporadora |
+| Temperatura, Humidade | Sensor SHT31 da placa |
+| Comunicação | Fica desligada quando a placa passa 5 segundos sem receber um quadro válido |
+
+Sem comunicação, os valores do barramento ficam como indisponíveis, em vez de mostrar números velhos.
+
+Em **Diagnóstico** ficam os bytes ainda não identificados, como "Evaporadora byte 21", e os bits do byte 17. Eles
+ficam no histórico do Home Assistant para ajudar a descobrir o que são. Cada valor é publicado só quando muda, para
+não encher o histórico a cada ciclo de 656 ms.
+
+## Solução de problemas
+
+- **"Comunicação" fica desligada:** confira se A e B estão invertidos, se o GND do módulo está ligado ao GND do cabo
+  do controlador e se o RO vai no GPIO16. Para conferir o barramento sem o ESP32, use o
+  [monitor ao vivo](captura.md#monitor-ao-vivo) pelo PC.
+- **O controlador da parede mostra erro de comunicação depois de ligar o módulo:** solte o módulo. Confira se o DE e
+  o RE estão no GND e se o módulo tem o resistor de 120 Ω entre A e B.
+- **Os valores do inverter ficam parados:** no primeiro aparelho, a frequência, a corrente e o barramento DC do
+  inverter não mudaram durante as capturas, nem com o compressor funcionando. Pode ser um problema no inverter desse
+  aparelho, e não na leitura. Veja as [pendências](#pendências).
+- **O sensor I²C não dá leitura:** veja a [solução](../ar-condicionado/README.md#solução-de-problemas) no guia do
+  ar-condicionado.
 
 ## Equipamentos
 
@@ -16,270 +159,44 @@ ESP32 no mesmo cabo do controlador com fio da parede.
 | Unidade interna (evaporadora) | 40VX10HHG236V1V | Linha Ecosplit, com resistências de aquecimento |
 | Controlador com fio | Não identificado | Cabo de 4 fios: 12V, GND, Y/A e G/B. Controla frio, ventilação e aquecimento |
 
-O comando do aparelho trabalha em 12 V: o controlador é alimentado pelo fio de 12V e as contatoras são de 12 V.
+São dois conjuntos iguais, e cada um tem o seu cabo e o seu controlador. Cada aparelho tem dois compressores: um
+inverter (1º estágio) e um fixo (2º estágio). O comando do aparelho trabalha em 12 V: o controlador é alimentado pelo
+fio de 12V e as contatoras são de 12 V.
 
-Além da temperatura ambiente, do modo e da temperatura desejada, o controlador mostra dados da unidade externa:
-
-- temperatura externa
-- temperatura do condensador
-- temperatura de sucção
-- código de erro da unidade externa
-- temperaturas de descarga 1 e 2
-
-Os dois aparelhos são do mesmo modelo, e cada um tem dois compressores: um inverter (1º estágio) e um fixo (2º
-estágio). Mesmo assim, os controladores não mostram as mesmas leituras extras:
+Além da temperatura ambiente, do modo e da temperatura desejada, os controladores mostram a temperatura externa, do
+condensador, de sucção e de descarga 1 e 2 e o código de erro da unidade externa. Mesmo com o equipamento igual, cada
+controlador mostra leituras extras diferentes:
 
 | Aparelho | Leituras extras no controlador |
 |---|---|
-| Este, já capturado | Corrente 1 e corrente 2 |
-| O outro | Frequência do compressor, corrente do compressor, temperatura do dissipador e tensão do barramento DC |
+| Primeiro | Corrente 1 e corrente 2 |
+| Segundo | Frequência do compressor, corrente do compressor, temperatura do dissipador e tensão do barramento DC |
 
-Como o equipamento é igual, a diferença deve estar no controlador (versão ou configuração). O barramento deste
-aparelho provavelmente já leva os dados do inverter em bytes ainda não identificados.
-
-São dois conjuntos iguais. A captura indica que cada aparelho tem o seu cabo e o seu controlador.
+O barramento dos dois leva os mesmos dados, e as placas mostram todos eles.
 
 O [manual do Ecosplit](https://cdn.carrierdobrasil.com.br/downloads_docs/1196f-CT-Ecosplit-Inverter-J-11-14--view-.pdf)
 lista a 38EVC10386S como condensadora compatível com as evaporadoras 40VX. Não foi encontrado o esquema de ligação
 do controlador.
 
-## O que passa no cabo do controlador
-
-Medições com o multímetro em tensão contínua, com o aparelho ligado e desligado e em todos os modos:
-
-| Entre | Tensão |
-|---|---|
-| GND e Y/A | 4,4 V, sem variação |
-| GND e G/B | 0,32 V, sem variação |
-
-Conclusão: Y/A e G/B são as linhas A e B de um barramento **RS-485 de 5 V**, e não sinais de termostato.
-
-- Se o controlador fosse um termostato, o Y iria a 12 V, a tensão do comando, quando o compressor fosse chamado.
-  Aqui a tensão não muda e nunca chega perto de 12 V. Quem aciona as contatoras é a placa da evaporadora.
-- Um termostato precisaria de um fio a mais para o aquecimento, o W. O cabo só tem dois sinais e ainda assim
-  controla as resistências.
-- O controlador mostra temperaturas e o código de erro da unidade externa. Esses dados chegam a ele pelo cabo, então
-  a comunicação vai nos dois sentidos. Um termostato só mandaria pedidos e não receberia nada.
-- Em repouso, o RS-485 mantém a linha A perto da alimentação e a linha B perto do GND, o que bate com 4,4 V e
-  0,32 V. O multímetro mostra a média, então a comunicação não aparece quando os dados são poucos.
-
-Como o barramento é digital, a placa da evaporadora continua decidindo quando ligar a resistência e mantém as
-proteções do aparelho, como não ligar a resistência com o ventilador parado. O ESP32 só envia os mesmos pedidos que
-o controlador.
-
-O protocolo não está documentado e está sendo descoberto por captura, como foi feito com o controle
-[Mirage](modelos.md#protocolo-mirage-kkg9ac1). A primeira captura confirmou RS-485 a 9600 baud, 8N1. O mapa dos
-quadros está em [modelos.md](modelos.md#protocolo-carrier-ecosplit-barramento-do-controlador).
-
-Não é o protocolo XYE da Midea, que era uma das hipóteses: o XYE usa 4800 baud e quadros que começam com `AA`. Aqui os
-quadros começam com `9A 56`.
-
 ## Plano
 
-1. **Capturar pelo PC.** Um adaptador USB para RS-485 escuta o barramento em paralelo com o controlador. Ele não
-   transmite nada, então não interfere no funcionamento. Pelo PC é mais fácil descobrir a velocidade (baud rate) e
-   comparar os bytes de cada comando. Para a velocidade, testar as mais comuns: 4800, 9600 e 19200 baud. Um
-   analisador lógico barato (clone do Saleae) mede a largura do bit direto e confirma que o sinal é diferencial.
-2. **Mapear o protocolo.** Usar o controlador da parede enquanto a captura roda: ligar, desligar, cada modo,
-   aquecimento, temperatura mínima e máxima e cada velocidade de ventilação. Passar também por cada tela de leitura
-   e anotar no log o valor mostrado, por exemplo "externa 31, sucção 8, corrente 12,4". Assim dá para achar o byte de
-   cada valor. Ele pode vir com deslocamento, multiplicado por 2 ou por 10, ou como leitura bruta do sensor. Algumas
-   leituras podem passar no cabo só enquanto a tela correspondente está aberta. O mapa dos bytes vai para
-   [modelos.md](modelos.md).
-3. **Ler pelo Home Assistant.** Um ESP32 com um módulo MAX485 escuta o barramento e mostra o estado real de cada
-   aparelho, ainda sem enviar comandos. Além do modo e das temperaturas ambiente e desejada, as leituras da unidade
-   externa viram sensores no Home Assistant: temperatura externa, do condensador e de sucção, código de erro e
-   corrente dos compressores. Com isso dá para acompanhar o funcionamento e receber um alerta quando aparecer um
-   erro. O ESP32 é alimentado por uma fonte externa, e não pelo 12V do cabo. O GND
-   do MAX485 (e da fonte) precisa ser ligado ao GND do cabo do controlador. Sem esse GND em comum, a referência fica
-   solta e a leitura pode falhar ou dar erros.
-4. **Controlar.** No RS-485, só um lado pode comandar por vez. Depois da captura, escolher entre trocar o controlador
-   pelo ESP32 ou enviar comandos sem atrapalhar o controlador. A placa da evaporadora consulta um endereço `F1` que
+1. **Capturar pelo PC.** Feito. O barramento é RS-485 a 9600 baud, 8N1. Veja [captura.md](captura.md).
+2. **Mapear o protocolo.** Quase todo feito: modo, temperaturas, correntes e inverter estão confirmados. Ainda faltam
+   o código de erro, a ventilação e alguns bytes. Veja [protocolo.md](protocolo.md).
+3. **Ler pelo Home Assistant.** As placas `evap-1` e `evap-2` estão prontas e esperam o módulo RS-485 para o teste no
+   barramento.
+4. **Controlar.** No RS-485, só um lado pode comandar por vez. Ainda falta escolher entre trocar o controlador pelo
+   ESP32 ou enviar comandos sem atrapalhar o controlador. A placa da evaporadora consulta um endereço `F1` que
    ninguém responde. Se ele for a vaga de um segundo controlador, o ESP32 pode responder como `F1` sem brigar com o
-   controlador da parede. Isso só pode ser testado transmitindo.
-
-## Captura pelo PC
-
-### Peça
-
-- Adaptador USB para RS-485, encontrado como "conversor USB RS485 CH340"
-
-### Ligações
-
-Em paralelo com o controlador, sem desligar nada:
-
-| Adaptador | Cabo do controlador |
-|---|---|
-| A (ou D+) | Y/A |
-| B (ou D−) | G/B |
-| GND | GND |
-
-- Não ligue o 12V no adaptador. Ele é alimentado pela USB. Isole a ponta desse fio enquanto mexe: se ele encostar
-  em A ou B, o adaptador pode queimar.
-- Se o adaptador não tiver GND, ligue só A e B.
-- Os adaptadores rotulam A e B de jeitos diferentes. Se a captura mostrar só lixo em todas as velocidades, inverta
-  os dois fios.
-- Se for usar um notebook, deixe-o na bateria durante a captura para evitar diferença de terra com o aparelho.
-- Mexa só no cabo do controlador. A alimentação do aparelho é de 380 V.
-- Nunca ligue esses fios direto em um GPIO do ESP32. O ESP32 usa 3,3 V e precisa do módulo MAX485 no meio.
-
-### Teste do adaptador
-
-O adaptador comprado foi testado na bancada, ainda fora do barramento:
-
-- O Windows reconhece como "USB-SERIAL CH340" (VID 1A86, PID 7523) e instala o driver sozinho. O número da porta
-  COM muda de um PC para outro.
-- **O transmissor só liga com o RTS ativo.** O adaptador não detecta o envio sozinho. Com o RTS desligado, ele só
-  escuta e não mexe no barramento.
-- Medições com A e B soltos, enviando `0x00` sem parar a 9600 baud:
-
-  | Situação | A–GND | B–GND | A–B |
-  |---|---|---|---|
-  | Repouso (sem polarização no adaptador) | — | — | 0,07 V |
-  | Enviando com RTS e DTR desligados | — | — | 0 V |
-  | Enviando com o RTS ligado | 1,0 V | 3,9 V | −2,8 V |
-
-  O valor de A–B é negativo porque o `0x00` deixa a linha em 0 em 90% do tempo, e o multímetro mostra a média.
-- Os bytes enviados não voltam pela mesma porta. O receptor desliga enquanto o transmissor está ligado, então a
-  recepção só pode ser testada no barramento.
-
-> **Atenção na captura:** muitos programas ligam o RTS e o DTR sozinhos ao abrir a porta, como o `pyserial` por
-> padrão e o PuTTY. Com o adaptador no cabo do controlador, isso faz ele forçar o barramento e atrapalha a
-> comunicação do aparelho. Abra a porta com os dois desligados. No `pyserial`, configure antes de abrir:
->
-> ```python
-> import serial
->
-> porta = serial.Serial()
-> porta.port = "COM6"
-> porta.baudrate = 9600
-> porta.rts = False
-> porta.dtr = False
-> porta.open()
-> ```
-
-### Script de captura
-
-O [`tools/captura_rs485.py`](../tools/captura_rs485.py) escuta o barramento sem nunca transmitir. Ele abre a porta
-com o RTS e o DTR desligados e não escreve nada nela.
-
-No Windows, instale o Python e o `pyserial` uma vez:
-
-```powershell
-winget install Python.Python.3.13
-py -m pip install pyserial
-```
-
-Primeiro descubra a velocidade. A varredura escuta 15 segundos em cada velocidade comum, de 1200 a 115200 baud.
-Use o controlador da parede durante a varredura para gerar tráfego:
-
-```powershell
-py tools\captura_rs485.py COM6 --varrer
-```
-
-Para cada velocidade, o script mostra quantos quadros chegaram, quantos se repetem e a média de transições de bit
-por byte. Na velocidade certa, os quadros de consulta periódica costumam se repetir iguais. Em velocidade alta demais,
-cada bit real vira vários bits iguais, e os bytes viram quase só `00`, `80`, `E0` e `F8`. Eles também se repetem, mas
-têm poucas transições, e o script marca essas velocidades como "rápida demais". Confira se os quadros fazem sentido.
-Se nada ficar claro, repita com `--paridade E`. No Ecosplit, a velocidade certa foi 9600 baud.
-
-Depois, capture na velocidade encontrada:
-
-```powershell
-py tools\captura_rs485.py COM6 --baud 4800 --so-novos
-```
-
-- Cada quadro vai para um arquivo `captura-DATA-HORA.txt`, com o horário e o tempo desde o quadro anterior.
-- Quadros nunca vistos antes são marcados com `*`. Com `--so-novos`, a tela mostra só esses, e o log continua com
-  todos.
-- Digite uma anotação e aperte Enter antes de cada ação no controlador, por exemplo "liguei frio". Ela entra no log
-  no horário certo e mostra quais quadros novos vieram depois dela.
-- Ctrl+C encerra e grava um resumo com cada quadro diferente e quantas vezes apareceu.
-
-Se os quadros vierem quebrados em pedaços, aumente o silêncio que separa um quadro do outro, por exemplo com
-`--pausa 50` (em milissegundos).
-
-Abra o script antes de ligar A e B no cabo do controlador e deixe ele aberto durante a sessão. Assim, se o sistema
-mexer no RTS no instante em que a porta abre, isso acontece com o adaptador ainda solto.
-
-### Monitor ao vivo
-
-O [`tools/monitor_ecosplit.py`](../tools/monitor_ecosplit.py) lê o barramento pelo adaptador e mostra os valores já
-convertidos, atualizando a tela a cada meio segundo. Ele usa o
-[mapa do protocolo](modelos.md#protocolo-carrier-ecosplit-barramento-do-controlador) e também nunca transmite.
-
-```powershell
-py tools\monitor_ecosplit.py COM6
-py tools\monitor_ecosplit.py COM6 --csv leituras.csv
-```
-
-- Mostra ligado, modo, temperatura desejada e ambiente, as temperaturas da unidade externa e as duas correntes.
-  Os valores que ainda são hipótese aparecem marcados.
-- Mostra os quadros brutos do controlador e da evaporadora, com os bytes que mudaram desde o início em amarelo. Isso
-  ajuda a achar o que ainda falta, como o código de erro.
-- Descarta quadros com o XOR ou a soma errados.
-- Com `--csv`, grava uma linha por ciclo, separada por ponto e vírgula e com vírgula decimal, para abrir no Excel.
-
-## Leitura pelo ESP32
-
-Cada aparelho tem a sua placa: [`evap-1.yaml`](../evap-1.yaml) e [`evap-2.yaml`](../evap-2.yaml). As duas usam o
-pacote [`packages/ecosplit.yaml`](../packages/ecosplit.yaml) e o componente
-[`components/ecosplit`](../components/ecosplit), que decodifica os quadros com o
-[mapa do protocolo](modelos.md#protocolo-carrier-ecosplit-barramento-do-controlador).
-
-A placa só escuta, por dois motivos: o UART não tem pino de TX, e o DE e o RE do módulo ficam no GND, o que deixa o
-transmissor dele sempre desligado.
-
-### Peças
-
-- ESP32 DevKit (`esp32dev`), com fonte externa de 5 V
-- Módulo RS-485 de **3,3 V** com os pinos DE e RE expostos, como os de MAX3485 ou SP3485
-
-Evite estes módulos:
-
-- **MAX485 alimentado em 5 V**, o módulo azul mais comum. A saída RO dele fica em 5 V, e o GPIO do ESP32 não aguenta
-  5 V.
-- **Módulos com direção automática**, que só têm os pinos RX e TX, sem DE e RE. Eles ligam o transmissor sozinhos
-  pelo pino TX, e sem esse controle o ESP32 pode acabar mexendo no barramento.
-
-### Ligações
-
-| Módulo RS-485 | Liga em |
-|---|---|
-| VCC | 3V3 do ESP32 |
-| GND | GND do ESP32 e GND do cabo do controlador |
-| RO | GPIO16 do ESP32 |
-| DI | Sem ligação |
-| DE e RE | GND |
-| A | Y/A do cabo do controlador |
-| B | G/B do cabo do controlador |
-
-- O fio de 12V do cabo do controlador fica sem ligação.
-- O GND precisa ser comum entre a fonte do ESP32, o módulo e o cabo do controlador.
-- Muitos módulos têm um resistor de terminação de 120 Ω entre A e B (marcado "121"). O barramento já tem a sua
-  terminação, e mais uma pode enfraquecer o sinal entre o controlador e a evaporadora. Com o módulo ligado, meça a
-  tensão entre A e B com o aparelho funcionando. Se ela cair abaixo de cerca de 1 V, retire o resistor.
-- Em placas com PSRAM (ESP32-WROVER), o GPIO16 é usado pela memória. Nesse caso, escolha outro pino com a
-  substituição `ecosplit_rx_pin` no YAML da placa.
-
-### Entidades no Home Assistant
-
-- **Valores:** ligado, modo, temperatura desejada e ambiente, externa, condensador, sucção, descarga 1 e 2,
-  dissipador, correntes 1 e 2, frequência e corrente do inverter e tensão do barramento DC.
-- **Comunicação:** fica desligada quando a placa passa 5 segundos sem receber um quadro válido. Nesse caso, os
-  valores ficam como indisponíveis.
-- **Diagnóstico:** os bytes ainda não identificados, como "Evaporadora byte 21", e os bits do byte 17. Eles ficam no
-  histórico do Home Assistant para ajudar a descobrir o que são.
-
-Cada valor é publicado só quando muda, para não encher o histórico a cada ciclo de 656 ms.
+   controlador da parede. Isso só pode ser testado transmitindo. Como o barramento é digital, a placa da evaporadora
+   continua decidindo quando ligar a resistência e mantém as proteções do aparelho, como não ligar a resistência com
+   o ventilador parado.
 
 ## Pendências
 
-- Fotos do controlador por trás e da régua de bornes da evaporadora, para achar o modelo do controlador e da placa
-- Saber se os dois aparelhos estão no mesmo cabo. A primeira captura indica que não: só um controlador (`C1`)
-  responde no barramento.
 - Verificar o inverter do primeiro aparelho. Nas capturas, só o compressor fixo funcionou, e a frequência, a corrente
   e o barramento DC do inverter ficaram parados. Ver o código de erro e, se for o caso, chamar um técnico
 - Saber o que a corrente 1 mede. A corrente 2 é do compressor fixo, e a do inverter vem em outro byte
-- Medição opcional em tensão alternada entre Y/A e G/B com o aparelho ligado: qualquer valor acima de zero confirma
-  que há dados passando
+- Descobrir o código de erro e os bytes que faltam no [mapa](protocolo.md)
+- Fotos do controlador por trás e da régua de bornes da evaporadora, para achar o modelo do controlador e da placa.
+  Fotos das chaves DIP das placas dos dois aparelhos ajudam a entender os bytes que mudam de um para o outro

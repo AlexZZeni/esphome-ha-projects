@@ -1,4 +1,4 @@
-# Carrier Ecosplit pelo barramento RS-485 do controlador, só escutando. Guia em docs/carrier-ecosplit.md.
+# Carrier Ecosplit pelo barramento RS-485 do controlador, só escutando. Guia em docs/carrier-ecosplit/README.md.
 # O UART não tem pino de TX, e o DE e o RE do módulo RS-485 ficam ligados no GND: a placa não consegue transmitir.
 substitutions:
   ecosplit_rx_pin: GPIO16
@@ -17,7 +17,7 @@ sensor:
     target_temperature:
       name: Temperatura desejada
     room_temperature:
-      name: Temperatura ambiente
+      name: Temperatura no controlador
     outdoor_temperature:
       name: Temperatura externa
     condenser_temperature:
@@ -40,7 +40,7 @@ sensor:
       name: Corrente do inverter
     dc_bus_voltage:
       name: Tensão do barramento DC
-    # Bytes ainda não identificados (docs/modelos.md). Ficam como diagnóstico para acompanhar no histórico.
+    # Bytes ainda não identificados (docs/carrier-ecosplit/protocolo.md). Ficam como diagnóstico para acompanhar no histórico.
     controller_byte_8:
       name: Controlador byte 8
     controller_byte_9:

@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="700" viewBox="0 0 1220 700" role="img" aria-label="O ESP32 recebe 5 V da fonte no pino VIN e GND no GND. O módulo RS-485 liga o RO ao RX2 (GPIO16), o GND ao GND, o VCC ao 3V3, e tem o DE e o RE ligados ao GND; o DI fica sem ligar. O A e o B do módulo vão ao Y/A e ao G/B do cabo do controlador, e o GND do cabo vai ao GND comum; o 12V do cabo fica sem ligar. O sensor SHT31 liga o SDA ao D21, o SCL ao D22, o GND ao GND e o VIN ao 3V3.">
+<style>
+svg { color: #1b2327; background: #fbfcfc; }
+svg text { font: 12px "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: currentColor; }
+svg .mono { font: 12px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; }
+svg .b { font-weight: 600; }
+svg .title { font-size: 14px; font-weight: 600; }
+svg .small { font-size: 11px; fill: #55636a; }
+svg .mid { text-anchor: middle; }
+svg .end { text-anchor: end; }
+svg .box { fill: #edf1f0; stroke: #b8c4c6; stroke-width: 1.5; }
+svg .solid { fill: currentColor; }
+svg .w { fill: none; stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+svg .w5v { stroke: #cf2f2f; } svg .t5v { fill: #cf2f2f; }
+svg .w33 { stroke: #c26a00; } svg .t33 { fill: #c26a00; }
+svg .wgnd { stroke: #20282c; } svg .tgnd { fill: #20282c; }
+svg .wsda { stroke: #1769c2; } svg .tsda { fill: #1769c2; }
+svg .wscl { stroke: #11825a; } svg .tscl { fill: #11825a; }
+svg .wsig { stroke: #7b3fc4; } svg .tsig { fill: #7b3fc4; }
+svg .wa { stroke: #b5367a; } svg .ta { fill: #b5367a; }
+svg .wb { stroke: #2a8fa3; } svg .tb { fill: #2a8fa3; }
+svg .wt { font-weight: 600; }
+svg .off { fill: #8a979c; }
+svg .pcb { fill: #123f3a; }
+svg .chip { fill: #24302f; stroke: #9dbdb4; }
+svg .usb { fill: #9dbdb4; stroke: #123f3a; }
+svg .on-pcb { fill: #e9f4f0; }
+svg .pin { font: 12px ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; fill: #9dbdb4; }
+svg .pin.on { fill: #e9f4f0; font-weight: 600; }
+svg .pad { fill: #e5bf58; stroke: #123f3a; stroke-width: 1; }
+svg .hole { fill: #123f3a; stroke: #9dbdb4; stroke-width: 1; }
+svg .pad-part { fill: #e5bf58; stroke: #1b2327; stroke-width: 1; }
+svg .hole-part { fill: #fbfcfc; stroke: #55636a; stroke-width: 1; }
+</style>
+<rect width="1220" height="700" fill="#fbfcfc"/>
+
+<!-- Legenda -->
+<text x="30" y="48" class="title">Como ler</text>
+<path class="w w5v" d="M30 72H70"></path><text x="82" y="76">5 V (VIN)</text>
+<path class="w w33" d="M30 97H70"></path><text x="82" y="101">3V3</text>
+<path class="w wgnd" d="M30 122H70"></path><text x="82" y="126">GND</text>
+<path class="w wsda" d="M30 147H70"></path><text x="82" y="151">SDA do sensor</text>
+<path class="w wscl" d="M30 172H70"></path><text x="82" y="176">SCL do sensor</text>
+<path class="w wsig" d="M30 197H70"></path><text x="82" y="201">Dados recebidos (RO → RX2)</text>
+<path class="w wa" d="M30 222H70"></path><text x="82" y="226">Linha A do barramento</text>
+<path class="w wb" d="M30 247H70"></path><text x="82" y="251">Linha B do barramento</text>
+<path class="w wgnd" d="M30 272H70"></path><circle cx="50" cy="272" r="5" class="solid"></circle><text x="82" y="276">Ponto: fios ligados</text>
+<path class="w wgnd" d="M30 297H42a8 8 0 0 1 16 0H70"></path><path class="w wgnd" d="M50 285V309" opacity=".55"></path><text x="82" y="301">Arco: cruzam sem encostar</text>
+
+<!-- Fonte -->
+<rect x="190" y="455" width="140" height="85" rx="4" class="box"></rect>
+<text x="202" y="492" class="title">Fonte de 5 V</text>
+<text x="202" y="510" class="small">ou o USB da placa</text>
+<text x="318" y="484" class="mono b end">−</text>
+<text x="318" y="514" class="mono b end">+</text>
+<path class="w wgnd" d="M330 480H460"></path>
+<path class="w w5v" d="M330 510H460"></path>
+<text x="395" y="473" class="mid wt tgnd">GND</text>
+<text x="395" y="503" class="mid wt t5v">5 V</text>
+
+<!-- Observações -->
+<text x="30" y="596" class="b">A placa só escuta o barramento</text>
+<text x="30" y="616" class="small">• o RO vai no RX2 (GPIO16) e o UART não tem pino de TX</text>
+<text x="30" y="634" class="small">• o DE e o RE no GND deixam o transmissor do módulo desligado</text>
+<text x="30" y="652" class="small">• o módulo entra em paralelo com o controlador, sem desligar nada</text>
+<text x="30" y="670" class="small">• o 12V do cabo do controlador fica sem ligar</text>
+
+<!-- Placa (mesmo desenho do esquema do ar-condicionado por IR, deslocado 60 px) -->
+<g transform="translate(60 0)">
+<rect x="400" y="30" width="220" height="540" rx="8" class="pcb"></rect>
+<rect x="480" y="562" width="60" height="30" rx="3" class="usb"></rect>
+<text x="510" y="582" class="mid mono b" style="fill:#123f3a">USB</text>
+<rect x="465" y="50" width="90" height="100" rx="3" class="chip"></rect>
+<text x="510" y="96" class="mid on-pcb b">ESP32</text>
+<text x="510" y="113" class="mid on-pcb">WROOM-32</text>
+<text x="510" y="296" class="mid on-pcb b">DOIT DevKit</text>
+<text x="510" y="313" class="mid on-pcb">30 pinos</text>
+
+<text x="412" y="94" class="pin">EN</text>
+<text x="412" y="124" class="pin">VP</text>
+<text x="412" y="154" class="pin">VN</text>
+<text x="412" y="184" class="pin">D34</text>
+<text x="412" y="214" class="pin">D35</text>
+<text x="412" y="244" class="pin">D32</text>
+<text x="412" y="274" class="pin">D33</text>
+<text x="412" y="304" class="pin">D25</text>
+<text x="412" y="334" class="pin">D26</text>
+<text x="412" y="364" class="pin">D27</text>
+<text x="412" y="394" class="pin">D14</text>
+<text x="412" y="424" class="pin">D12</text>
+<text x="412" y="454" class="pin">D13</text>
+<text x="412" y="484" class="pin on">GND</text>
+<text x="412" y="514" class="pin on">VIN</text>
+
+<text x="608" y="94" class="pin end">D23</text>
+<text x="608" y="124" class="pin on end">D22</text>
+<text x="608" y="154" class="pin end">TX0</text>
+<text x="608" y="184" class="pin end">RX0</text>
+<text x="608" y="214" class="pin on end">D21</text>
+<text x="608" y="244" class="pin end">D19</text>
+<text x="608" y="274" class="pin end">D18</text>
+<text x="608" y="304" class="pin end">D5</text>
+<text x="608" y="334" class="pin end">TX2</text>
+<text x="608" y="364" class="pin on end">RX2</text>
+<text x="608" y="394" class="pin end">D4</text>
+<text x="608" y="424" class="pin end">D2</text>
+<text x="608" y="454" class="pin end">D15</text>
+<text x="608" y="484" class="pin on end">GND</text>
+<text x="608" y="514" class="pin on end">3V3</text>
+
+<circle cx="400" cy="90" r="3.5" class="hole"></circle><circle cx="400" cy="120" r="3.5" class="hole"></circle><circle cx="400" cy="150" r="3.5" class="hole"></circle><circle cx="400" cy="180" r="3.5" class="hole"></circle><circle cx="400" cy="210" r="3.5" class="hole"></circle><circle cx="400" cy="240" r="3.5" class="hole"></circle><circle cx="400" cy="270" r="3.5" class="hole"></circle><circle cx="400" cy="300" r="3.5" class="hole"></circle><circle cx="400" cy="330" r="3.5" class="hole"></circle><circle cx="400" cy="360" r="3.5" class="hole"></circle><circle cx="400" cy="390" r="3.5" class="hole"></circle><circle cx="400" cy="420" r="3.5" class="hole"></circle><circle cx="400" cy="450" r="3.5" class="hole"></circle>
+<circle cx="620" cy="90" r="3.5" class="hole"></circle><circle cx="620" cy="150" r="3.5" class="hole"></circle><circle cx="620" cy="180" r="3.5" class="hole"></circle><circle cx="620" cy="240" r="3.5" class="hole"></circle><circle cx="620" cy="270" r="3.5" class="hole"></circle><circle cx="620" cy="300" r="3.5" class="hole"></circle><circle cx="620" cy="330" r="3.5" class="hole"></circle><circle cx="620" cy="390" r="3.5" class="hole"></circle><circle cx="620" cy="420" r="3.5" class="hole"></circle><circle cx="620" cy="450" r="3.5" class="hole"></circle>
+<circle cx="400" cy="480" r="5" class="pad"></circle><circle cx="400" cy="510" r="5" class="pad"></circle>
+<circle cx="620" cy="120" r="5" class="pad"></circle><circle cx="620" cy="210" r="5" class="pad"></circle><circle cx="620" cy="360" r="5" class="pad"></circle><circle cx="620" cy="480" r="5" class="pad"></circle><circle cx="620" cy="510" r="5" class="pad"></circle>
+</g>
+
+<!-- Sensor -->
+<rect x="760" y="250" width="230" height="70" rx="4" class="box"></rect>
+<text x="785" y="272" class="mono mid" style="fill:#55636a">ALT</text>
+<text x="820" y="272" class="mono mid" style="fill:#55636a">ADR</text>
+<text x="855" y="272" class="mono b mid">SDA</text>
+<text x="890" y="272" class="mono b mid">SCL</text>
+<text x="925" y="272" class="mono b mid">GND</text>
+<text x="960" y="272" class="mono b mid">VIN</text>
+<text x="772" y="296" class="title">Sensor SHT31</text>
+<text x="772" y="312" class="small">GY-SHT31-D: ALT e ADR ficam sem ligar</text>
+
+<!-- Fios I2C -->
+<path class="w wscl" d="M680 120H890V250"></path>
+<path class="w wsda" d="M680 210H855V250"></path>
+<text x="770" y="112" class="mid wt tscl">SCL</text>
+<text x="770" y="202" class="mid wt tsda">SDA</text>
+
+<!-- Módulo RS-485 -->
+<rect x="760" y="335" width="140" height="255" rx="4" class="box"></rect>
+<text x="772" y="364" class="mono b">RO</text>
+<text x="772" y="394" class="mono" style="fill:#55636a">DI</text>
+<text x="772" y="424" class="mono b">DE</text>
+<text x="772" y="454" class="mono b">RE</text>
+<text x="772" y="484" class="mono b">GND</text>
+<text x="772" y="514" class="mono b">VCC</text>
+<text x="888" y="414" class="mono b end">A</text>
+<text x="888" y="444" class="mono b end">B</text>
+<text x="830" y="548" class="mid title">Módulo RS-485</text>
+<text x="830" y="566" class="mid small">3,3 V: MAX3485</text>
+<text x="830" y="581" class="mid small">ou SP3485</text>
+<text x="752" y="394" class="small end">sem ligar</text>
+
+<!-- Fios entre a placa e o módulo -->
+<path class="w wsig" d="M680 360H760"></path>
+<text x="720" y="352" class="mid wt tsig">RX</text>
+<path class="w w33" d="M680 510H727a8 8 0 0 1 16 0H760"></path>
+<text x="697" y="503" class="mid wt t33">3V3</text>
+
+<!-- GND: placa, DE e RE do módulo, cabo do controlador e sensor -->
+<path class="w wgnd" d="M680 480H760"></path>
+<path class="w wgnd" d="M760 420H735V615H960V470H990"></path>
+<path class="w wgnd" d="M760 450H735"></path>
+<path class="w wgnd" d="M960 615H1152a8 8 0 0 1 16 0H1180V215H925V250"></path>
+<circle cx="735" cy="450" r="5" class="tgnd"></circle>
+<circle cx="735" cy="480" r="5" class="tgnd"></circle>
+<circle cx="960" cy="615" r="5" class="tgnd"></circle>
+<text x="707" y="473" class="mid wt tgnd">GND</text>
+<text x="850" y="608" class="mid wt tgnd">GND</text>
+<text x="1060" y="208" class="mid wt tgnd">GND</text>
+<text x="745" y="638" class="small">DE e RE no GND: o módulo só recebe</text>
+
+<!-- 3V3 do sensor -->
+<path class="w w33" d="M715 510V650H1160V235H960V250"></path>
+<circle cx="715" cy="510" r="5" class="t33"></circle>
+<text x="940" y="670" class="mid wt t33">3V3</text>
+<text x="1060" y="228" class="mid wt t33">3V3</text>
+
+<!-- Linhas A e B -->
+<path class="w wa" d="M900 410H990"></path>
+<path class="w wb" d="M900 440H990"></path>
+<text x="945" y="403" class="mid wt ta">A</text>
+<text x="945" y="433" class="mid wt tb">B</text>
+
+<!-- Cabo do controlador -->
+<rect x="990" y="360" width="150" height="180" rx="4" class="box"></rect>
+<text x="1002" y="384" class="mono off">12V</text>
+<text x="1002" y="414" class="mono b">Y/A</text>
+<text x="1002" y="444" class="mono b">G/B</text>
+<text x="1002" y="474" class="mono b">GND</text>
+<text x="1002" y="503" class="title">Cabo do</text>
+<text x="1002" y="520" class="title">controlador</text>
+<text x="1002" y="534" class="small">em paralelo</text>
+<text x="982" y="384" class="small end">sem ligar</text>
+
+<!-- Pinos dos componentes -->
+<circle cx="330" cy="480" r="5" class="pad-part"></circle><circle cx="330" cy="510" r="5" class="pad-part"></circle>
+<circle cx="785" cy="250" r="3.5" class="hole-part"></circle><circle cx="820" cy="250" r="3.5" class="hole-part"></circle>
+<circle cx="855" cy="250" r="5" class="pad-part"></circle><circle cx="890" cy="250" r="5" class="pad-part"></circle><circle cx="925" cy="250" r="5" class="pad-part"></circle><circle cx="960" cy="250" r="5" class="pad-part"></circle>
+<circle cx="760" cy="360" r="5" class="pad-part"></circle><circle cx="760" cy="390" r="3.5" class="hole-part"></circle><circle cx="760" cy="420" r="5" class="pad-part"></circle><circle cx="760" cy="450" r="5" class="pad-part"></circle><circle cx="760" cy="480" r="5" class="pad-part"></circle><circle cx="760" cy="510" r="5" class="pad-part"></circle>
+<circle cx="900" cy="410" r="5" class="pad-part"></circle><circle cx="900" cy="440" r="5" class="pad-part"></circle>
+<circle cx="990" cy="380" r="3.5" class="hole-part"></circle><circle cx="990" cy="410" r="5" class="pad-part"></circle><circle cx="990" cy="440" r="5" class="pad-part"></circle><circle cx="990" cy="470" r="5" class="pad-part"></circle>
+</svg>

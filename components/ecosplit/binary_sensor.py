@@ -12,7 +12,7 @@ from . import CONF_ECOSPLIT_ID, ECOSPLIT_CHILD_SCHEMA, SOURCE_CONTROLLER, SOURCE
 
 CONF_ONLINE = "online"
 
-# Chave no YAML: (quadro, byte, máscara, esquema). Mapa em docs/modelos.md.
+# Chave no YAML: (quadro, byte, máscara, esquema). Mapa em docs/carrier-ecosplit/protocolo.md.
 BINARY_SENSORS = {
     "power": (SOURCE_CONTROLLER, 5, 0x80, binary_sensor.binary_sensor_schema(device_class=DEVICE_CLASS_POWER)),
     "evaporator_fan": (SOURCE_UNIT, 17, 0x08, binary_sensor.binary_sensor_schema(device_class=DEVICE_CLASS_RUNNING)),

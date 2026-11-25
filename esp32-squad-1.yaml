@@ -1,5 +1,5 @@
 substitutions:
-  # Protocolo do ar. Veja em docs/ar-condicionado.md como descobrir o seu.
+  # Protocolo do ar. Veja em docs/ar-condicionado/README.md como descobrir o seu.
   ac_platform: coolix
 
 esphome:

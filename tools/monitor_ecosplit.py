@@ -1,6 +1,6 @@
 """Mostra ao vivo os valores do barramento do Carrier Ecosplit, sem nunca transmitir.
 
-Usa o mapa do protocolo em docs/modelos.md. A porta é aberta com o RTS e o DTR
+Usa o mapa do protocolo em docs/carrier-ecosplit/protocolo.md. A porta é aberta com o RTS e o DTR
 desligados, como no captura_rs485.py, e o script nunca escreve nela.
 
 Uso:

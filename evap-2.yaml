@@ -13,4 +13,5 @@ external_components:
 
 packages:
   base: !include packages/base.yaml
+  sht31: !include packages/sht31.yaml
   ecosplit: !include packages/ecosplit.yaml

@@ -46,7 +46,7 @@ valor indica a ordem certa.
 
 ## Sensor de temperatura e humidade
 
-O `ar-condicionado.yaml` já inclui o pacote do SHT31, em [`packages/sht31.yaml`](../packages/sht31.yaml). Para usar
+O `ar-condicionado.yaml` já inclui o pacote do SHT31, em [`packages/sht31.yaml`](../../packages/sht31.yaml). Para usar
 outro sensor, copie esse pacote para um arquivo novo, como `packages/sht40.yaml`, troque o bloco `sensor` pelo
 exemplo correspondente e aponte a linha `sht31` do `ar-condicionado.yaml` para o arquivo novo.
 
@@ -126,7 +126,7 @@ A posição do sensor afeta a leitura:
 
 ## Primeira gravação
 
-Prepare o ambiente e o `secrets.yaml` como descrito no [README](../README.md#preparar-o-ambiente). Depois, na raiz do
+Prepare o ambiente e o `secrets.yaml` como descrito no [README](../../README.md#preparar-o-ambiente). Depois, na raiz do
 repositório, grave a placa:
 
 ```sh
@@ -156,7 +156,7 @@ códigos brutos capturados podem ser enviados como botões.
 ### Controles Mirage
 
 O ESPHome reconhece o protocolo Mirage (`Received Mirage: 56:...`), mas não tem uma plataforma `climate` para ele.
-Este repositório inclui uma em [`components/mirage`](../components/mirage), que o `ar-condicionado.yaml` carrega
+Este repositório inclui uma em [`components/mirage`](../../components/mirage), que o `ar-condicionado.yaml` carrega
 com `external_components`. Ela foi feita para o controle do Super Split SS009, que segue o modelo KKG9AC1 do
 protocolo, e também atualiza o Home Assistant quando o controle original é usado.
 
@@ -171,7 +171,7 @@ protocolo, e também atualiza o Home Assistant quando o controle original é usa
 No modo desumidificar, o controle sempre envia 17 °C, e a plataforma faz o mesmo.
 
 O botão de display do controle só alterna, sem informar se o display está aceso. Por isso, no Home Assistant ele
-é um botão, e não um interruptor. Ele vem do pacote [`packages/mirage-display.yaml`](../packages/mirage-display.yaml).
+é um botão, e não um interruptor. Ele vem do pacote [`packages/mirage-display.yaml`](../../packages/mirage-display.yaml).
 
 Os aparelhos já testados e o mapa de bytes do protocolo estão em [modelos.md](modelos.md).
 

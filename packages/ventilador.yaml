@@ -1,5 +1,5 @@
 # Ventilador de teto com luz, controlado por IR (protocolo NEC, endereço 0xFF00).
-# Precisa do pacote ir. Veja os códigos e o funcionamento em docs/ventilador.md.
+# Precisa do pacote ir. Veja os códigos e o funcionamento em docs/ventilador/README.md.
 #
 # O ESPHome guarda o comando NEC como "inverso << 8 | código": o botão 0x08 vira 0xF708.
 #

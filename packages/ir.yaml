@@ -1,4 +1,4 @@
-# Emissor e receptor infravermelho. Veja as ligações em docs/ar-condicionado.md.
+# Emissor e receptor infravermelho. Veja as ligações em docs/ar-condicionado/README.md.
 remote_transmitter:
   id: ir_tx
   pin: GPIO4
